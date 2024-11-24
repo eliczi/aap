@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/nav_home">
+
+    <!-- Home Fragment -->
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.example.aap.ui.home.HomeFragment"
+        android:label="Home">
+        <!-- Define actions to other fragments -->
+        <action
+            android:id="@+id/action_home_to_data"
+            app:destination="@id/nav_data" />
+        <action
+            android:id="@+id/action_home_to_workouts"
+            app:destination="@id/nav_workouts" />
+        <action
+            android:id="@+id/action_home_to_meals"
+            app:destination="@id/nav_meals" />
+        <action
+            android:id="@+id/action_home_to_setup"
+            app:destination="@id/nav_setup" />
+        <!-- Add more actions as needed -->
+    </fragment>
+
+    <!-- Data Fragment -->
+    <fragment
+        android:id="@+id/nav_data"
+        android:name="com.example.aap.ui.data.DataFragment"
+        android:label="Data" />
+
+    <!-- Workouts Fragment -->
+    <fragment
+        android:id="@+id/nav_workouts"
+        android:name="com.example.aap.ui.workouts.WorkoutFragment"
+        android:label="Workouts" />
+
+    <fragment
+        android:id="@+id/nav_meals"
+        android:name="com.example.aap.ui.meals.MealFragment"
+        android:label="Meals" />
+
+    <fragment
+        android:id="@+id/nav_setup"
+        android:name="com.example.aap.ui.setup.SetupFragment"
+        android:label="Setup">
+        <action
+            android:id="@+id/action_setup_to_home"
+            app:destination="@id/nav_home"
+            app:popUpTo="@id/nav_home"
+            app:popUpToInclusive="false" />/>
+        </fragment>
+
+    <!-- Add more fragments as needed -->
+
+</navigation>

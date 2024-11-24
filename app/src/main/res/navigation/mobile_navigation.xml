@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.example.aap.ui.home.HomeFragment"
+        android:label="@string/menu_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/nav_gallery"
+        android:name="com.example.aap.ui.gallery.GalleryFragment"
+        android:label="@string/menu_gallery"
+        tools:layout="@layout/fragment_gallery" />
+
+    <fragment
+        android:id="@+id/nav_slideshow"
+        android:name="com.example.aap.ui.slideshow.SlideshowFragment"
+        android:label="@string/menu_slideshow"
+        tools:layout="@layout/fragment_slideshow" />
+    <fragment
+        android:id="@+id/nav_data"
+        android:name="com.example.aap.ui.data.DataFragment"
+        android:label="Data"
+        tools:layout="@layout/fragment_data" />
+
+    <fragment
+        android:id="@+id/nav_workouts"
+        android:name="com.example.aap.ui.workouts.WorkoutFragment"
+        android:label="Data"
+        tools:layout="@layout/fragment_data" />
+
+    <fragment
+        android:id="@+id/nav_meals"
+        android:name="com.example.aap.ui.meals.MealFragment"
+        android:label="Data"
+        tools:layout="@layout/fragment_meals" />
+    <fragment
+        android:id="@+id/nav_setup"
+        android:name="com.example.aap.ui.setup.SetupFragment"
+        android:label="Data"
+        tools:layout="@layout/fragment_setup" />
+</navigation>
