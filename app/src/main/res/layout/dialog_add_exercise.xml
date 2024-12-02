@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialogScrollView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/dialogLayout"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/editExerciseName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Exercise Name"
+            android:inputType="textPersonName"
+            android:layout_marginBottom="16dp"/>
+
+        <Button
+            android:id="@+id/buttonSetSets"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sets"
+            android:layout_marginTop="8dp"/>
+
+        <Button
+            android:id="@+id/buttonConfirmAddExercise"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add Exercise"
+            android:layout_marginTop="16dp"/>
+    </LinearLayout>
+</ScrollView>
