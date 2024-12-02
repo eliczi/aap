@@ -8,11 +8,16 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.example.aap.ui.workouts.Exercise;
+import com.example.aap.ui.workouts.Workout;
+
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -28,6 +33,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_AGE = "age";
     public static final String COLUMN_DATE = "date";
 
+    private static final String TABLE_WORKOUTS = "workouts";
+    private static final String COLUMN_WORKOUT_ID = "id";
+    private static final String COLUMN_WORKOUT_NAME = "name";
+    private static final String COLUMN_WORKOUT_DATE = "date";
+    private static final String COLUMN_WORKOUT_TIME_OF_DAY = "time_of_day";
+    private static final String COLUMN_WORKOUT_DURATION = "duration";
+
+    // exercises
+    private static final String TABLE_EXERCISES = "exercises";
+    private static final String COLUMN_EXERCISE_ID = "id";
+    private static final String COLUMN_EXERCISE_WORKOUT_ID = "workout_id";
+    private static final String COLUMN_EXERCISE_NAME = "name";
+    private static final String COLUMN_EXERCISE_SETS = "sets";
+    private static final String COLUMN_EXERCISE_REPS = "reps";
+
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -42,7 +62,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_WEIGHT + " REAL,"
                 + COLUMN_AGE + " INTEGER,"
                 + COLUMN_DATE + " TEXT)"; // Added date column
+
+        String CREATE_TABLE_WORKOUTS = "CREATE TABLE " + TABLE_WORKOUTS + "("
+                + COLUMN_WORKOUT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_WORKOUT_NAME + " TEXT NOT NULL,"
+                + COLUMN_WORKOUT_DATE + " TEXT NOT NULL,"
+                + COLUMN_WORKOUT_TIME_OF_DAY + " TEXT NOT NULL,"
+                + COLUMN_WORKOUT_DURATION + " INTEGER NOT NULL"
+                + ")";
+        String CREATE_TABLE_EXERCISES = "CREATE TABLE " + TABLE_EXERCISES + "("
+                + COLUMN_EXERCISE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_EXERCISE_WORKOUT_ID + " INTEGER NOT NULL,"
+                + COLUMN_EXERCISE_NAME + " TEXT NOT NULL,"
+                + COLUMN_EXERCISE_SETS + " INTEGER NOT NULL,"
+                + COLUMN_EXERCISE_REPS + " INTEGER NOT NULL,"
+                + "FOREIGN KEY(" + COLUMN_EXERCISE_WORKOUT_ID + ") REFERENCES "
+                + TABLE_WORKOUTS + "(" + COLUMN_WORKOUT_ID + ") ON DELETE CASCADE"
+                + ")";
+
         db.execSQL(CREATE_TABLE);
+        db.execSQL(CREATE_TABLE_WORKOUTS);
+        db.execSQL(CREATE_TABLE_EXERCISES);
         insertDummyData(db);
 
     }
@@ -132,7 +172,5 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         calendar.add(java.util.Calendar.DAY_OF_YEAR, daysOffset);
         return sdf.format(calendar.getTime());
     }
-
-
 
 }
