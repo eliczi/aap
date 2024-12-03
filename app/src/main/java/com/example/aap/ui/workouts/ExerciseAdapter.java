@@ -18,6 +18,10 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
     private List<Exercise> exerciseList = new ArrayList<>();
     private OnExerciseClickListener listener;
 
+    public void setExerciseList(List<Exercise> exercises) {
+        this.exerciseList = exercises;
+    }
+
     public interface OnExerciseClickListener {
         void onExerciseClick(int position);
     }
@@ -46,7 +50,8 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
     @Override
     public void onBindViewHolder(@NonNull ExerciseViewHolder holder, int position) {
         Exercise exercise = exerciseList.get(position);
-        holder.textExerciseName.setText(exercise.getName() +" "+ "Sets: " + exercise.getSets());
+        holder.textExerciseName.setText(exercise.getName() +" - "+ "Sets: " + exercise.getSets() +
+                " Reps: " + exercise.getReps() + " Weight: " + exercise.getWeight());
     }
 
     @Override
@@ -68,6 +73,12 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
 
     public Exercise getExercise(int position) {
         return exerciseList.get(position);
+    }
+    public List<Exercise> getExerciseList() {
+        return exerciseList;
+    }
+    public void clearExercises() {
+        exerciseList.clear();
     }
 
     public void updateExercise(int position, Exercise newExercise) {

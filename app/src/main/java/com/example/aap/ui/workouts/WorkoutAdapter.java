@@ -23,16 +23,23 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
         void onWorkoutClick(int position);
     }
 
+    public WorkoutAdapter(List<Workout> workoutList, OnWorkoutClickListener listener) {
+        this.workoutList = workoutList;
+        this.listener = listener;
+    }
+
     public void setOnWorkoutClickListener(OnWorkoutClickListener listener) {
         this.listener = listener;
     }
 
     static class WorkoutViewHolder extends RecyclerView.ViewHolder {
-        TextView textExerciseName;
+        TextView textWorkoutId;
+        TextView textWorkoutDate;
 
         public WorkoutViewHolder(@NonNull View itemView, final OnWorkoutClickListener listener) {
             super(itemView);
-            textExerciseName = itemView.findViewById(R.id.textExerciseName);
+            textWorkoutId = itemView.findViewById(R.id.textWorkoutId);
+            textWorkoutDate = itemView.findViewById(R.id.textWorkoutDate);
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
                     int position = getAdapterPosition();
@@ -47,7 +54,8 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
     @Override
     public void onBindViewHolder(@NonNull WorkoutAdapter.WorkoutViewHolder holder, int position) {
         Workout workout = workoutList.get(position);
-        holder.textExerciseName.setText(workout.getName());
+        holder.textWorkoutId.setText(workout.getId());
+        holder.textWorkoutDate.setText(workout.getDate());
     }
 
     @Override
@@ -63,7 +71,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
     @NonNull
     @Override
     public WorkoutAdapter.WorkoutViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_exercise, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_workout, parent, false);
         return new WorkoutAdapter.WorkoutViewHolder(v, listener);
     }
 
@@ -74,5 +82,9 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
     public void updateWorkout(int position, Workout newWorkout) {
         workoutList.set(position, newWorkout);
         notifyItemChanged(position);
+    }
+
+    public void setWorkouts(List<Workout> newWorkouts) {
+        this.workoutList = newWorkouts;
     }
 }

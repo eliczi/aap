@@ -20,12 +20,20 @@ public class AddExerciseDialogFragment extends DialogFragment {
     public static final String REQUEST_KEY = "AddExerciseNameRequestKey";
     public static final String BUNDLE_KEY_EXERCISE_NAME = "ExerciseName";
     public static final String BUNDLE_KEY_SETS = "ExerciseSets";
+    public static final String BUNDLE_KEY_REPS = "ExerciseReps";
+    public static final String BUNDLE_KEY_WEIGHT = "ExerciseWeight";
+
 
     private EditText editExerciseName;
     private Button buttonSetSets;
+    private Button buttonSetReps;
+    private Button buttonSetWeight;
+
     private Button buttonConfirmAddExercise;
 
     private int selectedSets = 1;
+    private int selectedReps = 1;
+    private int selectedWeight = 1;
 
     @NonNull
     @Override
@@ -35,9 +43,15 @@ public class AddExerciseDialogFragment extends DialogFragment {
 
         editExerciseName = view.findViewById(R.id.editExerciseName);
         buttonSetSets = view.findViewById(R.id.buttonSetSets);
+        buttonSetReps = view.findViewById(R.id.buttonSetReps);
+        buttonSetWeight = view.findViewById(R.id.buttonSetWeight);
+
         buttonConfirmAddExercise = view.findViewById(R.id.buttonConfirmAddExercise);
 
         buttonSetSets.setOnClickListener(v -> showNumberPickerDialog());
+        buttonSetReps.setOnClickListener(v -> showNumberPickerDialog());
+        buttonSetWeight.setOnClickListener(v -> showNumberPickerDialog());
+
 
         buttonConfirmAddExercise.setOnClickListener(v -> {
             String exerciseName = editExerciseName.getText().toString().trim();
@@ -50,6 +64,8 @@ public class AddExerciseDialogFragment extends DialogFragment {
             Bundle result = new Bundle();
             result.putString(BUNDLE_KEY_EXERCISE_NAME, exerciseName);
             result.putInt(BUNDLE_KEY_SETS, selectedSets);
+            result.putInt(BUNDLE_KEY_REPS, selectedReps);
+            result.putInt(BUNDLE_KEY_WEIGHT, selectedWeight);
 
             // Set fragment result
             getParentFragmentManager().setFragmentResult(REQUEST_KEY, result);

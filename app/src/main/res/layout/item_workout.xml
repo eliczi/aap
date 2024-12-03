@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="?attr/selectableItemBackground">
+
+    <!-- Workout ID -->
+    <TextView
+        android:id="@+id/textWorkoutId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Workout ID: 1"
+        android:textStyle="bold"
+        android:textSize="16sp" />
+
+    <!-- Workout Date -->
+    <TextView
+        android:id="@+id/textWorkoutDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Date: 2024-04-27"
+        android:textSize="14sp"
+        android:layout_marginTop="4dp" />
+
+    <!-- Separator Line -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#CCCCCC"
+        android:layout_marginTop="8dp" />
+
+    <!-- List of Exercises (Optional) -->
+    <!-- You can add a nested RecyclerView here if you want to display exercises within each workout -->
+</LinearLayout>

@@ -14,6 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,10 +35,14 @@ public class WorkoutFragment extends Fragment
     private FragmentWorkoutsBinding binding;
     private ExerciseAdapter exerciseAdapter;
     private WorkoutAdapter workoutAdapter;
+    private DatabaseHelper databaseHelper;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        databaseHelper = new DatabaseHelper(getContext());
+
 
         requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -71,37 +77,50 @@ public class WorkoutFragment extends Fragment
         //////workouts
         RecyclerView recyclerViewWorkouts = binding.recyclerViewWorkouts;
         recyclerViewWorkouts.setLayoutManager(new LinearLayoutManager(getContext()));
-        workoutAdapter = new WorkoutAdapter();
+        //workoutAdapter = new WorkoutAdapter();
+        workoutAdapter = new WorkoutAdapter(new ArrayList<>(), workout -> {
+            // Handle workout item click here
+            Toast.makeText(getContext(), "Clicked on Workout ID: " + 1, Toast.LENGTH_SHORT).show();
+            // For example, navigate to a detailed view or display exercises
+        });
+        recyclerViewWorkouts.setAdapter(workoutAdapter);
         workoutAdapter.setOnWorkoutClickListener(this);
         recyclerViewWorkouts.setAdapter(workoutAdapter);
 
-
-
-
+        //do not show exercises initially
+        recyclerViewExercises.setVisibility(View.GONE);
 
         Button buttonAddExercise = binding.buttonAddExercise;
         buttonAddExercise.setVisibility(View.GONE);
+
         Button buttonAddWorkout = binding.buttonAddWorkout;
-        buttonAddWorkout.setOnClickListener(v -> workoutButtonClicked(buttonAddExercise, buttonAddWorkout));
+        Button buttonSaveWorkout = binding.buttonSaveWorkout;
+        buttonAddWorkout.setOnClickListener(v -> workoutButtonClicked(buttonAddExercise, buttonAddWorkout, buttonSaveWorkout));
         buttonAddExercise.setOnClickListener(v -> openAddExerciseDialog());
 
+        buttonSaveWorkout.setVisibility(View.GONE);
+
+        buttonSaveWorkout.setOnClickListener(v -> saveWorkout(buttonSaveWorkout, buttonAddExercise,recyclerViewExercises,buttonAddExercise));
+        //adding new exercises
         getParentFragmentManager().setFragmentResultListener(
             AddExerciseDialogFragment.REQUEST_KEY,
             getViewLifecycleOwner(),
             (requestKey, bundle) -> {
                 if (AddExerciseDialogFragment.REQUEST_KEY.equals(requestKey)) {
-
                     String exerciseName = bundle.getString(AddExerciseDialogFragment.BUNDLE_KEY_EXERCISE_NAME);
                     int sets = bundle.getInt(AddExerciseDialogFragment.BUNDLE_KEY_SETS, 1);
-
+                    int reps = bundle.getInt(AddExerciseDialogFragment.BUNDLE_KEY_REPS, 1);
+                    int weight = bundle.getInt(AddExerciseDialogFragment.BUNDLE_KEY_WEIGHT, 1);
                     if (exerciseName != null) {
-                        Exercise exercise = new Exercise(exerciseName, sets);
+                        Exercise exercise = new Exercise(exerciseName, sets, reps, weight);
                         exerciseAdapter.addExercise(exercise);
                         Toast.makeText(getContext(), "Exercise: " + exerciseName, Toast.LENGTH_SHORT).show();
                     }
                 }
             }
         );
+
+        //updating exercises
         getParentFragmentManager().setFragmentResultListener(
                 EditExerciseDialogFragment.REQUEST_KEY,
                 getViewLifecycleOwner(),
@@ -109,16 +128,45 @@ public class WorkoutFragment extends Fragment
                     int position = bundle.getInt(EditExerciseDialogFragment.BUNDLE_KEY_POSITION);
                     String newExerciseName = bundle.getString(EditExerciseDialogFragment.BUNDLE_KEY_EXERCISE_NAME);
                     int sets = bundle.getInt(AddExerciseDialogFragment.BUNDLE_KEY_SETS, 1);
-                    Exercise newExercise = new Exercise(newExerciseName, sets);
+                    int reps = bundle.getInt(AddExerciseDialogFragment.BUNDLE_KEY_REPS, 1);
+                    int weight = bundle.getInt(AddExerciseDialogFragment.BUNDLE_KEY_WEIGHT, 1);
+                    Exercise newExercise = new Exercise(newExerciseName, sets, reps, weight);
                     exerciseAdapter.updateExercise(position, newExercise);
                 }
         );
+        loadWorkouts();
 
         return root;
     }
 
+    private void saveWorkout(Button b1, Button b2, RecyclerView recyclerViewExercises, Button b3) {
+        List<Exercise> exercises = exerciseAdapter.getExerciseList();
 
-    private void workoutButtonClicked(Button b1, Button b2)
+        if (exercises.isEmpty()) {
+            Toast.makeText(getContext(), "No exercises to save", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        long workoutId = databaseHelper.insertWorkout(exercises);
+
+        if (workoutId != -1) {
+            Toast.makeText(getContext(), "Workout saved successfully! ID: " + workoutId, Toast.LENGTH_SHORT).show();
+            exerciseAdapter.clearExercises();
+            // Reload workouts to reflect the new addition
+            loadWorkouts();
+            b1.setVisibility(View.GONE);
+            b2.setVisibility(View.GONE);
+            recyclerViewExercises.setVisibility(View.GONE);
+            b3.setVisibility(View.VISIBLE);
+            binding.buttonAddExercise.setVisibility(View.GONE);
+            binding.recyclerViewWorkouts.setVisibility(View.VISIBLE);
+            binding.buttonAddWorkout.setVisibility(View.VISIBLE);
+
+        } else {
+            Toast.makeText(getContext(), "Failed to save workout.", Toast.LENGTH_SHORT).show();
+        }
+    }
+    private void workoutButtonClicked(Button b1, Button b2, Button b3)
     {
         Animation fadeOut = AnimationUtils.loadAnimation(getContext(), R.anim.fade_out);
         b2.startAnimation(fadeOut);
@@ -130,7 +178,11 @@ public class WorkoutFragment extends Fragment
             public void onAnimationEnd(Animation animation) {
                 b2.setVisibility(View.GONE);
                 b1.setVisibility(View.VISIBLE);
+                b3.setVisibility(View.VISIBLE);
                 binding.recyclerViewExercises.setVisibility(View.VISIBLE);
+                binding.recyclerViewWorkouts.setVisibility(View.GONE);
+
+
 
                 Animation fadeIn = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
                 b1.startAnimation(fadeIn);
@@ -158,8 +210,16 @@ public class WorkoutFragment extends Fragment
     @Override
     public void onWorkoutClick(int position) {
         Workout workout = workoutAdapter.getWorkout(position);
-        Toast.makeText(getContext(), "Workout clicked: " + workout.getName(), Toast.LENGTH_SHORT).show();
+
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("workout", workout);
+
+        NavController navController = Navigation.findNavController(requireView());
+        navController.navigate(R.id.action_workoutFragment_to_workoutDetailFragment, bundle);
     }
+
+
+
 
     private void openEditExerciseDialog(int position, Exercise exercise) {
         EditExerciseDialogFragment dialog = EditExerciseDialogFragment.newInstance(position, exercise);
@@ -173,16 +233,16 @@ public class WorkoutFragment extends Fragment
         binding = null;
     }
 
-    public void loadWorkouts()
-    {
-        Map<String, List<Exercise>> workoutDataMap = DatabaseHelper.loadWorkoutsWithExercises(getContext());
+    private void loadWorkouts() {
+        List<Workout> workouts = databaseHelper.getAllWorkouts(getContext());
 
-        List<DataEntry> dataEntries = new ArrayList<>();
-        for (Map.Entry<String, List<Exercise>> entry : workoutDataMap.entrySet()) {
-            String originalDate = entry.getKey();
-            String formattedDate = originalDate.substring(8, 10) + "/" + originalDate.substring(5, 7);
-            //dataEntries.add(new ValueDataEntry(formattedDate, entry.getValue()));
-
+        if (workouts != null && !workouts.isEmpty()) {
+            workoutAdapter.setWorkouts(workouts);
+        } else {
+            Toast.makeText(getContext(), "No workouts found.", Toast.LENGTH_SHORT).show();
+            workoutAdapter.setWorkouts(new ArrayList<>());
         }
     }
+
+
 }

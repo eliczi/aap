@@ -2,8 +2,9 @@
 package com.example.aap.ui.workouts;
 
 import java.util.List;
+import java.io.Serializable;
 
-public class Workout {
+public class Workout implements Serializable{
     private int id;
     private String name;
     private String date;
@@ -11,17 +12,14 @@ public class Workout {
     private List<Exercise> exercises;
     private long duration; // Duration in milliseconds
 
-    public Workout(int id, String name, String date, String timeOfDay, List<Exercise> exercises, long duration) {
+    public Workout(int id, String date, List<Exercise> exercises) {
         this.id = id;
-        this.name = name;
         this.date = date;
-        this.timeOfDay = timeOfDay;
         this.exercises = exercises;
-        this.duration = duration;
     }
 
     // Getters
-    public int getId() { return id; }
+    public String getId() { return "" + id; }
     public String getName() { return name; }
     public String getDate() { return date; }
     public String getTimeOfDay() { return timeOfDay; }

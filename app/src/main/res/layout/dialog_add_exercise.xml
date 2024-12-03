@@ -27,10 +27,26 @@
             android:layout_marginTop="8dp"/>
 
         <Button
+            android:id="@+id/buttonSetReps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Reps"
+            android:layout_marginTop="8dp"/>
+
+        <Button
+            android:id="@+id/buttonSetWeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Weight"
+            android:layout_marginTop="8dp"/>
+
+        <Button
             android:id="@+id/buttonConfirmAddExercise"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Add Exercise"
             android:layout_marginTop="16dp"/>
+
+
     </LinearLayout>
 </ScrollView>

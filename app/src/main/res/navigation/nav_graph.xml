@@ -52,7 +52,23 @@
     <fragment
         android:id="@+id/nav_workouts"
         android:name="com.example.aap.ui.workouts.WorkoutFragment"
-        android:label="Workouts" />
+        android:label="Workouts">
+        <action
+            android:id="@+id/action_workoutFragment_to_workoutDetailFragment"
+            app:destination="@id/workoutDetailFragment"
+            />
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/workoutDetailFragment"
+        android:name="com.example.aap.ui.workouts.WorkoutDetailFragment"
+        android:label="Workout Details">
+    </fragment>
+
+
+
+
 
     <fragment
         android:id="@+id/nav_meals"

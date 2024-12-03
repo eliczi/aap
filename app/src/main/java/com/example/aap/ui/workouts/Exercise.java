@@ -1,15 +1,19 @@
 // Exercise.java
 package com.example.aap.ui.workouts;
 
-public class Exercise {
+import java.io.Serializable;
+
+public class Exercise implements Serializable {
     private String name;
     private int sets;
     private int reps;
     private double weight;
 
-    public Exercise(String name, int sets) {
+    public Exercise(String name, int sets, int reps, double weight) {
         this.name = name;
         this.sets = sets;
+        this.reps = reps;
+        this.weight = weight;
 
     }
 
