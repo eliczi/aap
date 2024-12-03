@@ -40,8 +40,8 @@
         android:label="Data"
         tools:layout="@layout/fragment_meals" />
     <fragment
-        android:id="@+id/nav_setup"
-        android:name="com.example.aap.ui.setup.SetupFragment"
+        android:id="@+id/nav_profile"
+        android:name="com.example.aap.ui.profile.ProfileFragment"
         android:label="Data"
-        tools:layout="@layout/fragment_setup" />
+        tools:layout="@layout/fragment_profile" />
 </navigation>

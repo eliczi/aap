@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.aap.databinding.ActivityMainBinding;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,9 +28,16 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
+
+
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+
         mAppBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
+
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
+        NavigationUI.setupWithNavController(bottomNav, navController);
+
     }
 
     @Override
