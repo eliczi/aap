@@ -1,0 +1,134 @@
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Header Text -->
+        <TextView
+            android:id="@+id/text_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Welcome to Profile"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- Gain Weight Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonGainWeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Gain Weight"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Lose Weight Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonLoseWeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Lose Weight"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Strength Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonStrength"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Strength"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Change Goal Button (Initially Hidden) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonChangeGoal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Change Goal"
+            android:visibility="gone"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Change Physical Attributes Button (Initially Hidden) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonChangePhysicalAttributes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Change Physical Attributes"
+            android:visibility="gone"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Input Layout for Physical Attributes -->
+        <LinearLayout
+            android:id="@+id/inputLayout"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:paddingTop="16dp">
+
+            <!-- Height Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Height (cm)"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_marginBottom="12dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editHeight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Weight Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Weight (kg)"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_marginBottom="12dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editWeight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Age Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Age"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_marginBottom="12dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editAge"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Save Data Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonSaveData"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Save Data"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_marginTop="16dp"/>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

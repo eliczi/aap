@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -60,20 +61,10 @@ public class DataFragment extends Fragment {
 
         anyChartView = root.findViewById(R.id.any_chart_view);
 
-//        dataViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-//            @Override
-//            public void onChanged(String s) {
-//                textView.setText(s);
-//            }
-//        });
-
-        //anyChartView.setVisibility(View.GONE);
-
         //displayData();
         buttonDeleteData.setOnClickListener(v -> {
             confirmDeletion();
         });
-        Log.d("OnCreateView", "onCreate: Activity created");
 
         drawWeightChart();
         return root;
@@ -133,17 +124,19 @@ public class DataFragment extends Fragment {
 
         List<DataEntry> dataEntries = new ArrayList<>();
         for (Map.Entry<String, Float> entry : weightDataMap.entrySet()) {
-            dataEntries.add(new ValueDataEntry(entry.getKey(), entry.getValue()));
+            String originalDate = entry.getKey();
+            String formattedDate = originalDate.substring(8, 10) + "/" + originalDate.substring(5, 7);
+            dataEntries.add(new ValueDataEntry(formattedDate, entry.getValue()));
+
         }
 
         if (dataEntries.isEmpty()) {
             anyChartView.setVisibility(View.GONE);
-
-            binding.textData.setText("No data available to display the chart.");
             return;
         } else {
             anyChartView.setVisibility(View.VISIBLE);
         }
+        anyChartView.setVisibility(View.VISIBLE);
         Cartesian cartesian = AnyChart.line();
 
         cartesian.title("Weight Over Time");
@@ -170,8 +163,12 @@ public class DataFragment extends Fragment {
         cartesian.padding(10d, 20d, 5d, 20d);
         cartesian.yScale().minimum(0d);
 
-        cartesian.yAxis(0).title("Weight (kg)");
-        cartesian.xAxis(0).title("Date");
+        //Cbackground color
+        int bgColorInt = ContextCompat.getColor(getContext(), R.color.light_md_theme_background);
+        String bgColorHex = String.format("#%06X", (0xFFFFFF & bgColorInt));
+        cartesian.background().fill(bgColorHex);
+
+        //cartesian.xAxis(0).title("Date");
 
         cartesian.tooltip()
                 .positionMode(TooltipPositionMode.POINT)
@@ -180,10 +177,11 @@ public class DataFragment extends Fragment {
 
         cartesian.interactivity().hoverMode(com.anychart.enums.HoverMode.BY_X);
 
+        //Log.d("CHART", "")
         cartesian.xAxis(0).labels().rotation(-45d);
         cartesian.xAxis(0).labels().format("{%Value}");
 
-        cartesian.legend().enabled(true);
+        cartesian.legend().enabled(false);
         cartesian.legend().fontSize(13d);
         cartesian.legend().padding(0d, 0d, 10d, 0d);
 

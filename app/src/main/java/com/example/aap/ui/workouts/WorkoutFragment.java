@@ -17,13 +17,22 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.anychart.chart.common.dataentry.DataEntry;
+import com.anychart.chart.common.dataentry.ValueDataEntry;
+import com.example.aap.DatabaseHelper;
 import com.example.aap.R;
 import com.example.aap.databinding.FragmentWorkoutsBinding;
 
-public class WorkoutFragment extends Fragment implements ExerciseAdapter.OnExerciseClickListener {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public class WorkoutFragment extends Fragment
+        implements ExerciseAdapter.OnExerciseClickListener, WorkoutAdapter.OnWorkoutClickListener {
 
     private FragmentWorkoutsBinding binding;
     private ExerciseAdapter exerciseAdapter;
+    private WorkoutAdapter workoutAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,12 +61,23 @@ public class WorkoutFragment extends Fragment implements ExerciseAdapter.OnExerc
         binding = FragmentWorkoutsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+
+        /////exercises
         RecyclerView recyclerViewExercises = binding.recyclerViewExercises;
         recyclerViewExercises.setLayoutManager(new LinearLayoutManager(getContext()));
-
         exerciseAdapter = new ExerciseAdapter();
         exerciseAdapter.setOnExerciseClickListener(this);
         recyclerViewExercises.setAdapter(exerciseAdapter);
+        //////workouts
+        RecyclerView recyclerViewWorkouts = binding.recyclerViewWorkouts;
+        recyclerViewWorkouts.setLayoutManager(new LinearLayoutManager(getContext()));
+        workoutAdapter = new WorkoutAdapter();
+        workoutAdapter.setOnWorkoutClickListener(this);
+        recyclerViewWorkouts.setAdapter(workoutAdapter);
+
+
+
+
 
         Button buttonAddExercise = binding.buttonAddExercise;
         buttonAddExercise.setVisibility(View.GONE);
@@ -135,6 +155,12 @@ public class WorkoutFragment extends Fragment implements ExerciseAdapter.OnExerc
         openEditExerciseDialog(position, exercise);
     }
 
+    @Override
+    public void onWorkoutClick(int position) {
+        Workout workout = workoutAdapter.getWorkout(position);
+        Toast.makeText(getContext(), "Workout clicked: " + workout.getName(), Toast.LENGTH_SHORT).show();
+    }
+
     private void openEditExerciseDialog(int position, Exercise exercise) {
         EditExerciseDialogFragment dialog = EditExerciseDialogFragment.newInstance(position, exercise);
         dialog.show(getParentFragmentManager(), "EditExerciseDialog");
@@ -145,5 +171,18 @@ public class WorkoutFragment extends Fragment implements ExerciseAdapter.OnExerc
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    public void loadWorkouts()
+    {
+        Map<String, List<Exercise>> workoutDataMap = DatabaseHelper.loadWorkoutsWithExercises(getContext());
+
+        List<DataEntry> dataEntries = new ArrayList<>();
+        for (Map.Entry<String, List<Exercise>> entry : workoutDataMap.entrySet()) {
+            String originalDate = entry.getKey();
+            String formattedDate = originalDate.substring(8, 10) + "/" + originalDate.substring(5, 7);
+            //dataEntries.add(new ValueDataEntry(formattedDate, entry.getValue()));
+
+        }
     }
 }

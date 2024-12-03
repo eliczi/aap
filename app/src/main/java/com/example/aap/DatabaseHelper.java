@@ -67,7 +67,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_WORKOUT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + COLUMN_WORKOUT_NAME + " TEXT NOT NULL,"
                 + COLUMN_WORKOUT_DATE + " TEXT NOT NULL,"
-                + COLUMN_WORKOUT_TIME_OF_DAY + " TEXT NOT NULL,"
                 + COLUMN_WORKOUT_DURATION + " INTEGER NOT NULL"
                 + ")";
         String CREATE_TABLE_EXERCISES = "CREATE TABLE " + TABLE_EXERCISES + "("
@@ -108,6 +107,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
         return result != -1;
     }
+
     public static Map<String, Float> loadWeightOverTime(Context context){
         Map<String, Float> weightMap = new LinkedHashMap<>();//preserver order
 
@@ -153,7 +153,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     private void insertDummyData(SQLiteDatabase db) {
-        // Example dummy data: 10 entries over 10 days
         for (int i = 1; i <= 10; i++) {
             ContentValues values = new ContentValues();
             values.put(COLUMN_GOAL, "Lose Weight");
@@ -164,6 +163,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values.put(COLUMN_DATE, date);
             db.insert(TABLE_NAME, null, values);
         }
+        for (int i = 1; i <= 5; i++) {
+            ContentValues workoutValues = new ContentValues();
+            workoutValues.put(COLUMN_WORKOUT_NAME, "Workout " + i);
+            workoutValues.put(COLUMN_WORKOUT_DATE, getDateString(-i));
+            workoutValues.put(COLUMN_WORKOUT_DURATION, 45);
+            long workoutId = db.insert(TABLE_WORKOUTS, null, workoutValues);
+
+            // Insert dummy data for the Exercises table
+            for (int j = 1; j <= 3; j++) {
+                ContentValues exerciseValues = new ContentValues();
+                exerciseValues.put(COLUMN_EXERCISE_WORKOUT_ID, workoutId);
+                exerciseValues.put(COLUMN_EXERCISE_NAME, "Exercise " + j);
+                exerciseValues.put(COLUMN_EXERCISE_SETS, 3);
+                exerciseValues.put(COLUMN_EXERCISE_REPS, 10 + j);
+                db.insert(TABLE_EXERCISES, null, exerciseValues);
+            }
+        }
+
     }
     private String getDateString(int daysOffset) {
         // Implement date formatting
@@ -172,5 +189,61 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         calendar.add(java.util.Calendar.DAY_OF_YEAR, daysOffset);
         return sdf.format(calendar.getTime());
     }
+
+    public static Map<String, List<Exercise>> loadWorkoutsWithExercises(Context context) {
+        Map<String, List<Exercise>> workoutMap = new LinkedHashMap<>(); // Preserve chronological order
+
+        DatabaseHelper databaseHelper = new DatabaseHelper(context);
+        SQLiteDatabase database = databaseHelper.getReadableDatabase();
+
+        String query = "SELECT w." + COLUMN_WORKOUT_NAME + ", w." + COLUMN_WORKOUT_DATE + ", " +
+                "e." + COLUMN_EXERCISE_NAME + ", e." + COLUMN_EXERCISE_SETS + ", e." + COLUMN_EXERCISE_REPS +
+                " FROM " + TABLE_WORKOUTS + " w " +
+                "LEFT JOIN " + TABLE_EXERCISES + " e " +
+                "ON w." + COLUMN_WORKOUT_ID + " = e." + COLUMN_EXERCISE_WORKOUT_ID +
+                " ORDER BY w." + COLUMN_WORKOUT_DATE + " ASC";
+
+        Cursor cursor = null;
+
+        try {
+            cursor = database.rawQuery(query, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                while (!cursor.isAfterLast()) {
+                    // Extract workout name and date
+                    String workoutName = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_WORKOUT_NAME));
+                    String workoutDate = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_WORKOUT_DATE));
+                    String workoutKey = workoutName + " (" + workoutDate + ")";
+
+                    // Extract exercise details
+                    String exerciseName = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_EXERCISE_NAME));
+                    int sets = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_EXERCISE_SETS));
+                    int reps = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_EXERCISE_REPS));
+
+                    // Create Exercise object
+                    Exercise exercise = new Exercise(exerciseName, sets);
+
+                    // Add exercise to the workout's list of exercises
+                    if (!workoutMap.containsKey(workoutKey)) {
+                        workoutMap.put(workoutKey, new ArrayList<>()); // Initialize list if it doesn't exist
+                    }
+                    workoutMap.get(workoutKey).add(exercise);
+
+                    cursor.moveToNext();
+                }
+            }
+        } catch (Exception e) {
+            Log.e("DatabaseHelper", "Error loading workouts with exercises", e);
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+            if (database.isOpen()) {
+                database.close();
+            }
+        }
+
+        return workoutMap;
+    }
+
 
 }

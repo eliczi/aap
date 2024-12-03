@@ -1,4 +1,4 @@
-package com.example.aap.ui.setup;
+package com.example.aap.ui.profile;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -18,14 +18,13 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.Navigation;
 
 import com.example.aap.DatabaseHelper;
 import com.example.aap.R;
 
-public class SetupFragment extends Fragment {
+public class ProfileFragment extends Fragment {
 
-    private SetupViewModel setupViewModel;
+    private ProfileViewModel profileViewModel;
     private SharedPreferences sharedPreferences;
     private DatabaseHelper dbHelper;
     // SharedPreferences Constants
@@ -47,9 +46,9 @@ public class SetupFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        setupViewModel = new ViewModelProvider(this).get(SetupViewModel.class);
+        profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
 
-        View root = inflater.inflate(R.layout.fragment_setup, container, false);
+        View root = inflater.inflate(R.layout.fragment_profile, container, false);
 
         sharedPreferences = requireActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         dbHelper = new DatabaseHelper(requireActivity());
@@ -57,7 +56,7 @@ public class SetupFragment extends Fragment {
         initUIElements(root);
 
         setupInitialState();
-        setupViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+        profileViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String s) {
                 textView.setText(s);
@@ -68,7 +67,7 @@ public class SetupFragment extends Fragment {
     }
 
     private void initUIElements(View root) {
-        textView = root.findViewById(R.id.text_setup);
+        textView = root.findViewById(R.id.text_profile);
         buttonGainWeight = root.findViewById(R.id.buttonGainWeight);
         buttonLoseWeight = root.findViewById(R.id.buttonLoseWeight);
         buttonStrength = root.findViewById(R.id.buttonStrength);
@@ -86,7 +85,7 @@ public class SetupFragment extends Fragment {
 
         if (goalSelected) {
             String userGoal = sharedPreferences.getString(KEY_USER_GOAL, "No goal set");
-            setupViewModel.setText("Your goal: " + userGoal);
+            profileViewModel.setText("Your goal: " + userGoal);
 
             setGoalButtonsVisibility(View.GONE);
 
@@ -121,7 +120,7 @@ public class SetupFragment extends Fragment {
         editor.remove(KEY_USER_GOAL);
         editor.apply();
 
-        setupViewModel.setText("Select your goal:");
+        profileViewModel.setText("Select your goal:");
         buttonChangeGoal.setVisibility(View.GONE);
         buttonChangePhysicalAttributes.setVisibility(View.GONE);
         setupGoalSelection();
@@ -129,7 +128,7 @@ public class SetupFragment extends Fragment {
     }
 
     private void showPhysicalAttributesInput() {
-        setupViewModel.setText("");
+        profileViewModel.setText("");
         inputLayout.setVisibility(View.VISIBLE);
         buttonChangePhysicalAttributes.setVisibility(View.GONE);
         buttonChangeGoal.setVisibility(View.GONE);
@@ -157,11 +156,11 @@ public class SetupFragment extends Fragment {
         boolean isSetupCompleted = sharedPreferences.getBoolean(KEY_SETUP_COMPLETED, false);
         Log.d("SetupCimoketed", "" + isSetupCompleted);
         if (!isSetupCompleted) {
-            setupViewModel.setText("");
+            profileViewModel.setText("");
             inputLayout.setVisibility(View.VISIBLE);
             buttonChangePhysicalAttributes.setVisibility(View.GONE);
         } else {
-            setupViewModel.setText("Your goal: " + goal);
+            profileViewModel.setText("Your goal: " + goal);
             inputLayout.setVisibility(View.GONE);
         }
     }
@@ -196,7 +195,7 @@ public class SetupFragment extends Fragment {
                     buttonChangePhysicalAttributes.setVisibility(View.VISIBLE);
 
                     String userGoal = sharedPreferences.getString(KEY_USER_GOAL, "No goal set");
-                    setupViewModel.setText("Your goal: " + userGoal);
+                    profileViewModel.setText("Your goal: " + userGoal);
 
                     // Navigate back to HomeFragment
                     //navigateToHomeFragment();

@@ -1,17 +1,17 @@
 // SetupViewModel.java
-package com.example.aap.ui.setup;
+package com.example.aap.ui.profile;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class SetupViewModel extends ViewModel {
+public class ProfileViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
     private final MutableLiveData<Boolean> _hasNavigated;
     public final LiveData<Boolean> hasNavigated;
 
-    public SetupViewModel() {
+    public ProfileViewModel() {
         mText = new MutableLiveData<>();
         mText.setValue("Choose your goal");
 
