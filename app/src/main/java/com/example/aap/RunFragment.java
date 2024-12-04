@@ -6,9 +6,11 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +18,13 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -31,11 +39,10 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RunFragment extends Fragment {
+public class RunFragment extends Fragment implements SensorEventListener {
 
     private MapView mapView;
-    private TextView distanceValue;
-    private TextView timeValue;
+    private TextView distanceValue, timeValue, stepValue, caloriesValue, speedValue;
     private Button startButton, pauseButton, stopButton;
 
     private Polyline pathOverlay;
@@ -46,11 +53,23 @@ public class RunFragment extends Fragment {
     private double totalDistance = 0.0;
     private long simulatedElapsedTime = 0L;
     private long startTime = 0L;
+
+    private int stepCount = 0;
+    private double currentSpeed = 0.0;
+    private float weight = 70.0f; // Default weight
+    private double caloriesBurned = 0.0;
+
+
     private Handler handler;
     private Runnable runnable;
 
     private LocationManager locationManager;
     private Location lastLocation;
+
+    private SensorManager sensorManager;
+    private Sensor stepDetector;
+
+    private DatabaseHelper databaseHelper;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,6 +77,10 @@ public class RunFragment extends Fragment {
 
 
         Configuration.getInstance().load(requireContext(), requireContext().getSharedPreferences("osmdroid", Context.MODE_PRIVATE));
+
+        databaseHelper = new DatabaseHelper(requireContext());
+
+        weight = databaseHelper.getLatestWeight();
     }
 
     @Override
@@ -67,6 +90,9 @@ public class RunFragment extends Fragment {
         // Initialize UI controls
         distanceValue = view.findViewById(R.id.distance_value);
         timeValue = view.findViewById(R.id.time_value);
+        stepValue = view.findViewById(R.id.step_value);
+        caloriesValue = view.findViewById(R.id.calories_value);
+        speedValue = view.findViewById(R.id.speed_value);
         startButton = view.findViewById(R.id.btn_start);
         pauseButton = view.findViewById(R.id.btn_pause);
         stopButton = view.findViewById(R.id.btn_stop);
@@ -90,6 +116,10 @@ public class RunFragment extends Fragment {
 
         // Initialize LocationManager
         locationManager = (LocationManager) requireContext().getSystemService(Context.LOCATION_SERVICE);
+
+        // Initialize SensorManager for step detection
+        sensorManager = (SensorManager) requireContext().getSystemService(Context.SENSOR_SERVICE);
+        stepDetector = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
 
         // Generate demo workout (for presentation only)
         createFakePath();
@@ -125,15 +155,22 @@ public class RunFragment extends Fragment {
         double hours = totalDistance / 1000 / walkingPaceKph;
         simulatedElapsedTime = (long) (hours * 3600 * 1000);
 
+        int fakeSteps = 1000;
+        double fakeCalories = 200.0;
+        double fakeSpeed = 5.0; // km/h
+
+
+
         // Display demo data
-        updateUI(simulatedElapsedTime, totalDistance);
+        updateUI(simulatedElapsedTime, totalDistance, fakeSteps, fakeCalories, fakeSpeed);
+
 
         // Add points to the polyline and center the map
         pathOverlay.setPoints(geoPoints);
         mapView.getController().setCenter(geoPoints.get(0));
     }
 
-    private void updateUI(long elapsedTime, double distance) {
+    private void updateUI(long elapsedTime, double distance, double steps, double calories, double speed) {
         // Format time as HH:mm:ss
         int seconds = (int) (elapsedTime / 1000) % 60;
         int minutes = (int) ((elapsedTime / (1000 * 60)) % 60);
@@ -143,15 +180,42 @@ public class RunFragment extends Fragment {
 
         // Update distance
         distanceValue.setText(String.format("%.2f km", distance / 1000));
+
+        // Update steps
+        stepValue.setText(String.valueOf((int)steps));
+
+        // Update calories
+        caloriesValue.setText(String.format("%.1f kcal", calories));
+
+        // Update speed
+        speedValue.setText(String.format("%.1f km/h", speed));
     }
 
+    // to estimate burned calories
+    private double getMETValue(double speedKmh) {
+        if (speedKmh <= 8) return 9.8;  // Jogging
+        else if (speedKmh <= 12) return 11.8;  // Moderate running
+        else return 14.5;  // Vigorous running
+    }
+
+    private void calculateCalories(long elapsedTimeMs, double distanceMeters, double speedKmh) {
+        double durationHours = elapsedTimeMs / 3600000.0; // Convert ms to hours
+        double met = getMETValue(speedKmh);
+        caloriesBurned = met * weight * durationHours;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     private void startTracking() {
         // Reset data
         geoPoints.clear();
         pathOverlay.setPoints(geoPoints);
         mapView.invalidate();
         totalDistance = 0.0;
-        updateUI(0, totalDistance);
+
+        stepCount = 0;
+        caloriesBurned = 0.0;
+        currentSpeed = 0.0;
+        updateUI(0, totalDistance, stepCount, caloriesBurned, currentSpeed);
 
         isTracking = true;
         startTime = System.currentTimeMillis();
@@ -161,8 +225,27 @@ public class RunFragment extends Fragment {
             return;
         }
 
+        if (ContextCompat.checkSelfPermission(requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(requireContext(),
+                        Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACTIVITY_RECOGNITION
+            }, 1);
+            return;
+        }
+
         // Request location updates
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locationListener);
+
+        // Register sensor listener for step detection
+        if (sensorManager != null && stepDetector != null) {
+            sensorManager.registerListener(this, stepDetector, SensorManager.SENSOR_DELAY_UI);
+        } else {
+            Toast.makeText(requireContext(), "Step Detector not available!", Toast.LENGTH_SHORT).show();
+        }
+
 
         // Start timer
         handler = new Handler(Looper.getMainLooper());
@@ -171,7 +254,7 @@ public class RunFragment extends Fragment {
             public void run() {
                 if (isTracking) {
                     long elapsedTime = System.currentTimeMillis() - startTime;
-                    updateUI(elapsedTime, totalDistance);
+                    updateUI(elapsedTime, totalDistance, stepCount, caloriesBurned, currentSpeed);
                     handler.postDelayed(this, 1000);
                 }
             }
@@ -190,6 +273,9 @@ public class RunFragment extends Fragment {
             }
             locationManager.removeUpdates(locationListener);
             locationOverlay.disableFollowLocation();
+            if (sensorManager != null) {
+                sensorManager.unregisterListener(this);
+            }
             Toast.makeText(requireContext(), "Paused tracking", Toast.LENGTH_SHORT).show();
         }
     }
@@ -198,16 +284,24 @@ public class RunFragment extends Fragment {
         if (handler != null) {
             handler.removeCallbacks(runnable);
         }
+
         locationManager.removeUpdates(locationListener);
+        locationOverlay.disableFollowLocation();
+        if (sensorManager != null) {
+            sensorManager.unregisterListener(this);
+        }
 
         // Reset everything
         isTracking = false;
-        totalDistance = 0.0;
         lastLocation = null;
+        totalDistance = 0.0;
+        stepCount = 0;
+        caloriesBurned = 0.0;
+        currentSpeed = 0.0;
         geoPoints.clear();
         pathOverlay.setPoints(geoPoints);
         mapView.invalidate();
-        updateUI(0, totalDistance);
+        updateUI(0, totalDistance, stepCount, caloriesBurned, currentSpeed);
 
         locationOverlay.disableFollowLocation();
 
@@ -232,6 +326,17 @@ public class RunFragment extends Fragment {
                             location.getLongitude(),
                             results);
                     totalDistance += results[0];
+
+                    // Calculate speed in km/h
+                    double timeSeconds = (System.currentTimeMillis() - startTime) / 1000.0;
+                    if (timeSeconds > 0) {
+                        currentSpeed = (totalDistance / 1000.0) / (timeSeconds / 3600.0); // km/h
+                    } else {
+                        currentSpeed = 0.0;
+                    }
+
+                    // Calculate calories burned
+                    calculateCalories(System.currentTimeMillis() - startTime, totalDistance, currentSpeed);
                 }
                 lastLocation = location;
             }
@@ -263,5 +368,21 @@ public class RunFragment extends Fragment {
             handler.removeCallbacks(runnable);
         }
         locationManager.removeUpdates(locationListener);
+    }
+
+
+    public void onSensorChanged(SensorEvent event) {
+        if (isTracking && event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
+            Log.d("StepDetector", "Step detected");
+            Log.d("StepDetector", "Step count: " + stepCount);
+            stepCount++;
+            calculateCalories(System.currentTimeMillis() - startTime, totalDistance, currentSpeed);
+            updateUI(System.currentTimeMillis() - startTime, totalDistance, stepCount, caloriesBurned, currentSpeed);
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }
