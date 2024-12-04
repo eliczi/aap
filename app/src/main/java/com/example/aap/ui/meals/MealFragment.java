@@ -55,6 +55,16 @@ public class MealFragment extends Fragment {
                 Toast.makeText(getContext(), "Meal plan generated for goal: " + userGoal, Toast.LENGTH_SHORT).show();
             }
         });
+        binding.buttonAddMeal.setOnClickListener(v -> {
+            AddMealDialogFragment dialog = new AddMealDialogFragment();
+            dialog.setOnMealAddedListener(newMeal -> {
+                mealList.add(newMeal);
+                mealAdapter.setMealList(mealList);
+                Toast.makeText(getContext(), "Meal added successfully.", Toast.LENGTH_SHORT).show();
+            });
+            dialog.show(getParentFragmentManager(), "AddMealDialog");
+        });
+
 
         return root;
     }

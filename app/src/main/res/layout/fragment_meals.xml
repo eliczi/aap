@@ -1,18 +1,29 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="8dp">
 
-    <!-- Button to Generate Meal Plan -->
-    <Button
-        android:id="@+id/button_generate_meal"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Generate Meal Plan" />
+        android:orientation="horizontal"
+        android:visibility="visible">
 
-    <!-- RecyclerView for Meal Plan -->
+        <Button
+            android:id="@+id/button_generate_meal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Generate Meal Plan" />
+
+        <Button
+            android:id="@+id/button_add_meal"
+            android:layout_width="174dp"
+            android:layout_height="wrap_content"
+            android:gravity="center|clip_vertical"
+            android:text="Add Meal" />
+    </LinearLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewMeals"
         android:layout_width="match_parent"

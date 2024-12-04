@@ -17,6 +17,11 @@
         android:title="Workouts" />
 
     <item
+        android:id="@+id/nav_run"
+        android:icon="@drawable/ic_menu_run"
+        android:title="Run" />
+
+    <item
         android:id="@+id/nav_data"
         android:icon="@drawable/ic_menu_data"
         android:title="Data" />
