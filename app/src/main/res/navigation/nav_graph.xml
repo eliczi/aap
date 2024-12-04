@@ -75,6 +75,12 @@
         android:name="com.example.aap.ui.meals.MealFragment"
         android:label="Meals" />
 
+
+    <fragment
+        android:id="@+id/nav_run"
+        android:name="com.example.aap.RunFragment"
+        android:label="Run" />
+
     <fragment
         android:id="@+id/nav_profile"
         android:name="com.example.aap.ui.profile.ProfileFragment"
