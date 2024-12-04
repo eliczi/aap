@@ -180,7 +180,7 @@ public class RunFragment extends Fragment implements SensorEventListener {
         geoPoints.add(new GeoPoint(46.005, 8.954));
         geoPoints.add(new GeoPoint(46.006, 8.955));
         geoPoints.add(new GeoPoint(46.007, 8.956));
-        geoPoints.add(new GeoPoint(46.008, 8.967));
+        geoPoints.add(new GeoPoint(46.008, 8.957));
         geoPoints.add(new GeoPoint(46.009, 8.958));
 
         // Calculate total distance
