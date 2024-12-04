@@ -57,9 +57,6 @@
 
         </LinearLayout>
 
-        <!-- First Chart -->
-
-
         <com.anychart.AnyChartView
             android:id="@+id/any_chart_view"
             android:layout_width="0dp"

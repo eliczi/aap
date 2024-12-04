@@ -279,4 +279,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+    public float getLatestWeight() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_NAME, new String[]{COLUMN_WEIGHT}, null, null, null, null, COLUMN_DATE + " DESC", "1");
+        float weight = 70.0f; // Default weight
+        if (cursor != null && cursor.moveToFirst()) {
+            weight = cursor.getFloat(cursor.getColumnIndexOrThrow(COLUMN_WEIGHT));
+            cursor.close();
+        }
+        db.close();
+        return weight;
+    }
+
 }
