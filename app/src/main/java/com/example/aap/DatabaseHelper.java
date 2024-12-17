@@ -21,11 +21,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.osmdroid.util.GeoPoint;
+
 
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "UserData.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     public static final String TABLE_NAME = "UserInfo";
     public static final String COLUMN_ID = "id";
@@ -46,6 +48,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String MEAL_FAT = "fat";
     public static final String MEAL_EATEN_TODAY = "eatenToday";
     public static final String MEAL_DATE = "date"; // To track when the meal was eaten
+
+    //running
+    public static final String WORKOUTS_TABLE = "Workouts";
+    public static final String WORKOUT_ID = "workout_id";
+    public static final String WORKOUT_DISTANCE = "distance";
+    public static final String WORKOUT_TIME = "time";
+    public static final String WORKOUT_AVG_SPEED = "avg_speed";
+    public static final String WORKOUT_STEPS = "steps";
+    public static final String WORKOUT_CALORIES = "calories";
+    public static final String WORKOUT_PATH = "path";
+    public static final String WORKOUT_DATE = "date";
+    public static final String WORKOUT_ELEVATION_CHANGE = "elevation_change";
 
 
     public DatabaseHelper(Context context) {
@@ -74,19 +88,47 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + MEAL_DATE + " TEXT" // Optional: To track when the meal was eaten
                 + ")";
 
+        String CREATE_WORKOUTS_TABLE = "CREATE TABLE " + WORKOUTS_TABLE + "("
+                + WORKOUT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + WORKOUT_DISTANCE + " REAL,"
+                + WORKOUT_TIME + " INTEGER,"
+                + WORKOUT_AVG_SPEED + " REAL,"
+                + WORKOUT_STEPS + " INTEGER,"
+                + WORKOUT_CALORIES + " REAL,"
+                + WORKOUT_PATH + " TEXT," // Store path as a serialized string
+                + WORKOUT_DATE + " TEXT,"
+                + WORKOUT_ELEVATION_CHANGE + " REAL"
+                + ")";
+
         db.execSQL(CREATE_USERINFO_TABLE);
         db.execSQL(CREATE_MEALS_TABLE);
+        db.execSQL(CREATE_WORKOUTS_TABLE);
         insertDummyData(db);
 
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 4) {
+        if (oldVersion < 3) {
             // Drop the old tables
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
             // Recreate tables with the new schem
             onCreate(db);
+        }
+        if (oldVersion < 4) {
+
+            String CREATE_WORKOUTS_TABLE = "CREATE TABLE " + WORKOUTS_TABLE + "("
+                    + WORKOUT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + WORKOUT_DISTANCE + " REAL,"
+                    + WORKOUT_TIME + " INTEGER,"
+                    + WORKOUT_AVG_SPEED + " REAL,"
+                    + WORKOUT_STEPS + " INTEGER,"
+                    + WORKOUT_CALORIES + " REAL,"
+                    + WORKOUT_PATH + " TEXT," // Store path as a serialized string
+                    + WORKOUT_DATE + " TEXT,"
+                    + WORKOUT_ELEVATION_CHANGE + " REAL" // Make sure this column is included
+                    + ")";
+            db.execSQL(CREATE_WORKOUTS_TABLE);
         }
     }
 
@@ -164,6 +206,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         }
 
+        // Insert dummy Workouts
+        List<GeoPoint> dummyPath1 = new ArrayList<>();
+        dummyPath1.add(new GeoPoint(46.005, 8.954));
+        dummyPath1.add(new GeoPoint(46.006, 8.955));
+        dummyPath1.add(new GeoPoint(46.007, 8.956));
+
+        Workout workout1 = new Workout(2500, 3600000, 2.5, 3000, 200, dummyPath1, "2024-12-15", 50);
+        insertWorkout(workout1, db);
+
+        List<GeoPoint> dummyPath2 = new ArrayList<>();
+        dummyPath2.add(new GeoPoint(46.008, 8.957));
+        dummyPath2.add(new GeoPoint(46.009, 8.958));
+        dummyPath2.add(new GeoPoint(46.010, 8.959));
+
+        Workout workout2 = new Workout(5000, 7200000, 5.0, 6000, 400, dummyPath2, "2024-12-17", 100);
+        insertWorkout(workout2, db);
+
     }
     private String getDateString(int daysOffset) {
         // Implement date formatting
@@ -171,6 +230,62 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Calendar calendar = java.util.Calendar.getInstance();
         calendar.add(java.util.Calendar.DAY_OF_YEAR, daysOffset);
         return sdf.format(calendar.getTime());
+    }
+
+    // returns false if fails
+    public boolean insertWorkout(Workout workout, SQLiteDatabase db) {
+        SQLiteDatabase database = db;
+        if (database == null) {
+            database = this.getWritableDatabase();
+        }
+        ContentValues values = new ContentValues();
+        values.put(WORKOUT_DISTANCE, workout.getDistance());
+        values.put(WORKOUT_TIME, workout.getTime());
+        values.put(WORKOUT_AVG_SPEED, workout.getAverageSpeed());
+        values.put(WORKOUT_STEPS, workout.getSteps());
+        values.put(WORKOUT_CALORIES, workout.getCalories());
+        values.put(WORKOUT_PATH, serializeGeoPoints(workout.getPath()));
+        values.put(WORKOUT_DATE, workout.getDate());
+        values.put(WORKOUT_ELEVATION_CHANGE, workout.getElevationChange());
+
+        long result = database.insert(WORKOUTS_TABLE, null, values);
+        if (db == null) {
+            database.close();
+        }
+        return result != -1;
+    }
+
+    // Overload the method for backward compatibility if needed
+    public boolean insertWorkout(Workout workout) {
+        return insertWorkout(workout, null);
+    }
+
+    // Helper method to serialize the list of GeoPoints to a string
+    // for storing in db
+    private String serializeGeoPoints(List<GeoPoint> geoPoints) {
+        StringBuilder sb = new StringBuilder();
+        for (GeoPoint point : geoPoints) {
+            sb.append(point.getLatitude()).append(",").append(point.getLongitude()).append(";");
+        }
+        return sb.toString();
+    }
+
+    // Helper method to deserialize the string back to a list of GeoPoints
+    private List<GeoPoint> deserializeGeoPoints(String pathString) {
+        List<GeoPoint> geoPoints = new ArrayList<>();
+        if (pathString == null || pathString.isEmpty()) {
+            return geoPoints;
+        }
+        String[] points = pathString.split(";");
+        for (String point : points) {
+            String[] latLng = point.split(",");
+            if (latLng.length == 2) {
+                double lat = Double.parseDouble(latLng[0]);
+                double lng = Double.parseDouble(latLng[1]);
+                geoPoints.add(new GeoPoint(lat, lng));
+            }
+        }
+        return geoPoints;
     }
 
     public float getLatestWeight() {
@@ -351,6 +466,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         return meals;
+    }
+
+
+    public List<Workout> getAllWorkouts() {
+        List<Workout> workoutList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(WORKOUTS_TABLE, null, null, null, null, null, WORKOUT_DATE + " DESC");
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                double distance = cursor.getDouble(cursor.getColumnIndexOrThrow(WORKOUT_DISTANCE));
+                long time = cursor.getLong(cursor.getColumnIndexOrThrow(WORKOUT_TIME));
+                double avgSpeed = cursor.getDouble(cursor.getColumnIndexOrThrow(WORKOUT_AVG_SPEED));
+                int steps = cursor.getInt(cursor.getColumnIndexOrThrow(WORKOUT_STEPS));
+                double calories = cursor.getDouble(cursor.getColumnIndexOrThrow(WORKOUT_CALORIES));
+                String pathString = cursor.getString(cursor.getColumnIndexOrThrow(WORKOUT_PATH));
+                List<GeoPoint> path = deserializeGeoPoints(pathString);
+                String date = cursor.getString(cursor.getColumnIndexOrThrow(WORKOUT_DATE));
+                float elevationChange = cursor.getFloat(cursor.getColumnIndexOrThrow(WORKOUT_ELEVATION_CHANGE));
+
+                Workout workout = new Workout(distance, time, avgSpeed, steps, calories, path, date, elevationChange);
+                workoutList.add(workout);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        db.close();
+        return workoutList;
     }
 
 
