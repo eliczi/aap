@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import androidx.viewpager2.widget.ViewPager2;
+
 import android.widget.TextView;
 import android.widget.Toast;
 import android.hardware.Sensor;
@@ -39,6 +41,8 @@ import com.example.aap.DatabaseHelper;
 import com.example.aap.R;
 import com.example.aap.databinding.FragmentDataBinding;
 import com.example.aap.databinding.FragmentHomeBinding;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +69,12 @@ public class HomeFragment extends Fragment {
     private boolean isSensorAvailable;
     private float initialSteps = 0;
     private boolean isInitialStepsSet = false;
+
+
+    private ViewPager2 chartViewPager;
+    private TabLayout tabLayout;
+    private ChartPageAdapter chartPagerAdapter;
+
 
 
     @Override
@@ -110,7 +120,22 @@ public class HomeFragment extends Fragment {
 //                textView.setText(s);
 //            }
 //        });
-        drawWeightChart();
+
+        // Initialize ViewPager2 and TabLayout
+        chartViewPager = root.findViewById(R.id.chart_view_pager);
+        tabLayout = root.findViewById(R.id.tab_layout);
+
+        // Initialize Adapter with 2 charts
+        chartPagerAdapter = new ChartPageAdapter(getContext(), 2);
+        chartViewPager.setAdapter(chartPagerAdapter);
+
+        // Link TabLayout with ViewPager2 for page indicators
+        new TabLayoutMediator(tabLayout, chartViewPager,
+                (tab, position) -> {
+                    tab.setText("");//+ (position + 1));
+                }
+        ).attach();
+        //drawWeightChart();
 
         //loadHealthData();
 

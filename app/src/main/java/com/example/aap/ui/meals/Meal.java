@@ -6,19 +6,24 @@ public class Meal {
     private int calories;
     private int protein;
     private int carbs;
-    private int fats;
+    private int fat;
+    private boolean eatenToday;
 
-    // Constructor
-    public Meal(String name, String imageUrl, int calories, int protein, int carbs, int fats) {
+    public Meal(String name, String imageUrl, int calories, int protein, int carbs, int fat) {
         this.name = name;
         this.imageUrl = imageUrl;
         this.calories = calories;
         this.protein = protein;
         this.carbs = carbs;
-        this.fats = fats;
+        this.fat = fat;
     }
 
-    // Getters and Setters
+    public boolean isEatenToday() {
+        return eatenToday;
+    }
+    public void setEatenToday(boolean eatenToday) {
+        this.eatenToday = eatenToday;
+    }
     public String getName() {
         return name;
     }
@@ -40,6 +45,12 @@ public class Meal {
     }
 
     public int getFats() {
-        return fats;
+        return fat;
     }
+
+    public void setImageUrl(String url)
+    {
+        this.imageUrl = url;
+    }
+
 }

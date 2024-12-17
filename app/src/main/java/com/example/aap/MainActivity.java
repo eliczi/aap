@@ -1,6 +1,7 @@
 package com.example.aap;
 
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        //toolbar.setVisibility(View.GONE);
 
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
 

@@ -10,6 +10,7 @@ import com.example.aap.R;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.aap.R;
+import com.google.android.material.card.MaterialCardView;
 import com.squareup.picasso.Picasso; // For image loading
 
 import java.util.List;
@@ -49,9 +50,12 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
         ImageView imageViewMeal;
         TextView textViewMealName;
         TextView textViewMealNutrition;
+        MaterialCardView materialCardView;
+
 
         public MealViewHolder(@NonNull View itemView) {
             super(itemView);
+            materialCardView = itemView.findViewById(R.id.materialCard);
             imageViewMeal = itemView.findViewById(R.id.imageViewMeal);
             textViewMealName = itemView.findViewById(R.id.textViewMealName);
             textViewMealNutrition = itemView.findViewById(R.id.textViewMealNutrition);
@@ -74,6 +78,22 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
             } else {
                 imageViewMeal.setImageResource(R.drawable.white);
             }
+            // Update the stroke to indicate eaten state
+            if (meal.isEatenToday()) {
+                materialCardView.setStrokeColor(
+                        itemView.getContext().getResources().getColor(R.color.green_frame)
+                );
+                materialCardView.setStrokeWidth(4); // thickness of the frame in dp
+            } else {
+                materialCardView.setStrokeWidth(0);
+            }
+
+            // Set a click listener to toggle the eaten state
+            itemView.setOnClickListener(v -> {
+                meal.setEatenToday(!meal.isEatenToday());
+                notifyItemChanged(getAdapterPosition());
+            });
+
         }
     }
 }

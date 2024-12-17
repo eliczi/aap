@@ -282,4 +282,7 @@
     <color name="dark_md_theme_surfaceContainer_highContrast">#251E17</color>
     <color name="dark_md_theme_surfaceContainerHigh_highContrast">#302921</color>
     <color name="dark_md_theme_surfaceContainerHighest_highContrast">#3B332B</color>
+
+    <color name="green_frame">#00C853</color> <!-- A nice green -->
+
 </resources>
