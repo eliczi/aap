@@ -11,10 +11,10 @@
         android:icon="@drawable/meal"
         android:title="Meals" />
 
-    <item
-        android:id="@+id/nav_workouts"
-        android:icon="@drawable/ic_menu_workouts"
-        android:title="Workouts" />
+<!--    <item-->
+<!--        android:id="@+id/nav_workouts"-->
+<!--        android:icon="@drawable/ic_menu_workouts"-->
+<!--        android:title="Workouts" />-->
 
     <item
         android:id="@+id/nav_run"

@@ -8,8 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.example.aap.ui.workouts.Exercise;
-import com.example.aap.ui.workouts.Workout;
+import com.example.aap.ui.meals.Meal;
+
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -20,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
 
 
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -34,19 +35,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_AGE = "age";
     public static final String COLUMN_DATE = "date";
 
-    private static final String TABLE_WORKOUTS = "workouts";
-    private static final String COLUMN_WORKOUT_ID = "id";
-    private static final String COLUMN_WORKOUT_DATE = "date";
-
-
-    // exercises
-    private static final String TABLE_EXERCISES = "exercises";
-    private static final String COLUMN_EXERCISE_ID = "id";
-    private static final String COLUMN_EXERCISE_WORKOUT_ID = "workout_id";
-    private static final String COLUMN_EXERCISE_NAME = "name";
-    private static final String COLUMN_EXERCISE_SETS = "sets";
-    private static final String COLUMN_EXERCISE_REPS = "reps";
-    private static final String COLUMN_EXERCISE_WEIGHT = "weight";
+    //meals
+    public static final String MEALS_TABLE = "Meals";
+    public static final String MEAL_COLUMN_ID = "meal_id";
+    public static final String MEAL_NAME = "name";
+    public static final String MEAL_IMAGE_URL = "imageUrl";
+    public static final String MEAL_CALORIES = "calories";
+    public static final String MEAL_PROTEIN = "protein";
+    public static final String MEAL_CARBS = "carbs";
+    public static final String MEAL_FAT = "fat";
+    public static final String MEAL_EATEN_TODAY = "eatenToday";
+    public static final String MEAL_DATE = "date"; // To track when the meal was eaten
 
 
     public DatabaseHelper(Context context) {
@@ -55,46 +54,38 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "("
+        String CREATE_USERINFO_TABLE = "CREATE TABLE " + TABLE_NAME + "("
                 + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + COLUMN_GOAL + " TEXT,"
                 + COLUMN_HEIGHT + " REAL,"
                 + COLUMN_WEIGHT + " REAL,"
                 + COLUMN_AGE + " INTEGER,"
-                + COLUMN_DATE + " TEXT)"; // Added date column
+                + COLUMN_DATE + " TEXT)";
 
-        String CREATE_TABLE_WORKOUTS = "CREATE TABLE " + TABLE_WORKOUTS + "("
-                + COLUMN_WORKOUT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + COLUMN_WORKOUT_DATE + " TEXT NOT NULL"
+
+        String CREATE_MEALS_TABLE = "CREATE TABLE " + MEALS_TABLE + "("
+                + MEAL_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + MEAL_NAME + " TEXT NOT NULL,"
+                + MEAL_IMAGE_URL + " TEXT,"
+                + MEAL_CALORIES + " INTEGER,"
+                + MEAL_PROTEIN + " INTEGER,"
+                + MEAL_CARBS + " INTEGER,"
+                + MEAL_FAT + " INTEGER,"
+                + MEAL_DATE + " TEXT" // Optional: To track when the meal was eaten
                 + ")";
 
-
-        String CREATE_TABLE_EXERCISES = "CREATE TABLE " + TABLE_EXERCISES + "("
-                + COLUMN_EXERCISE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + COLUMN_EXERCISE_WORKOUT_ID + " INTEGER NOT NULL,"
-                + COLUMN_EXERCISE_NAME + " TEXT NOT NULL,"
-                + COLUMN_EXERCISE_SETS + " INTEGER NOT NULL,"
-                + COLUMN_EXERCISE_REPS + " INTEGER NOT NULL,"
-                + COLUMN_EXERCISE_WEIGHT + " INTEGER NOT NULL," // or DOUBLE???
-                + "FOREIGN KEY(" + COLUMN_EXERCISE_WORKOUT_ID + ") REFERENCES "
-                + TABLE_WORKOUTS + "(" + COLUMN_WORKOUT_ID + ") ON DELETE CASCADE"
-                + ")";
-
-        db.execSQL(CREATE_TABLE);
-        db.execSQL(CREATE_TABLE_WORKOUTS);
-        db.execSQL(CREATE_TABLE_EXERCISES);
+        db.execSQL(CREATE_USERINFO_TABLE);
+        db.execSQL(CREATE_MEALS_TABLE);
         insertDummyData(db);
 
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 3) {
+        if (oldVersion < 4) {
             // Drop the old tables
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_WORKOUTS);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_EXERCISES);
-            // Recreate tables with the new schema
+            // Recreate tables with the new schem
             onCreate(db);
         }
     }
@@ -172,23 +163,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             result = db.insert(TABLE_NAME, null, values);
 
         }
-        for (int i = 1; i <= 5; i++) {
-            ContentValues workoutValues = new ContentValues();
-            workoutValues.put(COLUMN_WORKOUT_DATE, getDateString(-i));
-            long workoutId = db.insert(TABLE_WORKOUTS, null, workoutValues);
-            Log.d("DUPSKO", "" + workoutId);
-            // Insert dummy data for the Exercises table
-            for (int j = 1; j <= 3; j++) {
-                ContentValues exerciseValues = new ContentValues();
-                exerciseValues.put(COLUMN_EXERCISE_WORKOUT_ID, workoutId);
-                exerciseValues.put(COLUMN_EXERCISE_NAME, "Exercise " + j);
-                exerciseValues.put(COLUMN_EXERCISE_SETS, 3);
-                exerciseValues.put(COLUMN_EXERCISE_REPS, 5);
-                exerciseValues.put(COLUMN_EXERCISE_WEIGHT, 50);
-                result = db.insert(TABLE_EXERCISES, null, exerciseValues);
-                Log.d("DUPSKO", "" + result);
-            }
-        }
+
     }
     private String getDateString(int daysOffset) {
         // Implement date formatting
@@ -197,87 +172,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         calendar.add(java.util.Calendar.DAY_OF_YEAR, daysOffset);
         return sdf.format(calendar.getTime());
     }
-
-    public long insertWorkout(List<Exercise> exercises) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        long workoutId;
-
-        ContentValues workoutValues = new ContentValues();
-        String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-        workoutValues.put(COLUMN_WORKOUT_DATE, currentDate);
-
-        workoutId = db.insertOrThrow(TABLE_WORKOUTS, null, workoutValues);
-
-        for (Exercise exercise : exercises) {
-            ContentValues exerciseValues = new ContentValues();
-            exerciseValues.put(COLUMN_EXERCISE_WORKOUT_ID, workoutId);
-            exerciseValues.put(COLUMN_EXERCISE_NAME, exercise.getName());
-            exerciseValues.put(COLUMN_EXERCISE_SETS, exercise.getSets());
-            exerciseValues.put(COLUMN_EXERCISE_REPS, exercise.getReps());
-            exerciseValues.put(COLUMN_EXERCISE_WEIGHT, exercise.getWeight());
-            db.insertOrThrow(TABLE_EXERCISES, null, exerciseValues);
-        }
-        db.close();
-        return workoutId;
-    }
-
-    public List<Workout> getAllWorkouts(Context context) {
-
-        List<Workout> workouts = new ArrayList<>();
-        DatabaseHelper databaseHelper = new DatabaseHelper(context);
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
-
-        String WORKOUTS_SELECT_QUERY =
-                String.format("SELECT * FROM %s", TABLE_WORKOUTS);
-
-        Cursor cursor = db.rawQuery(WORKOUTS_SELECT_QUERY, null);
-        try {
-            if (cursor.moveToFirst()) {
-                do {
-                    int workoutId = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_WORKOUT_ID));
-                    // Optionally retrieve date
-                    String workoutDate = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_WORKOUT_DATE));
-                    // Retrieve exercises for this workout
-                    List<Exercise> exercises = getExercisesForWorkout(workoutId);
-
-                    Workout workout = new Workout(workoutId, workoutDate, exercises);
-                    workouts.add(workout);
-
-                } while (cursor.moveToNext());
-            }
-        } finally {
-            cursor.close();
-        }
-        return workouts;
-    }
-    private List<Exercise> getExercisesForWorkout(long workoutId) {
-        List<Exercise> exercises = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        String EXERCISES_SELECT_QUERY =
-                String.format("SELECT * FROM %s WHERE %s = ?",
-                        TABLE_EXERCISES, COLUMN_EXERCISE_WORKOUT_ID);
-
-        Cursor cursor = db.rawQuery(EXERCISES_SELECT_QUERY, new String[]{String.valueOf(workoutId)});
-        try {
-            if (cursor.moveToFirst()) {
-                do {
-                    String exerciseName = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_EXERCISE_NAME));
-                    int sets = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_EXERCISE_SETS));
-                    int reps = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_EXERCISE_REPS));
-                    int weight = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_EXERCISE_WEIGHT));
-                    Exercise exercise = new Exercise(exerciseName, sets, reps, weight);
-                    exercises.add(exercise);
-
-                } while (cursor.moveToNext());
-            }
-        } finally {
-            cursor.close();
-        }
-
-        return exercises;
-    }
-
 
     public float getLatestWeight() {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -290,5 +184,174 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
         return weight;
     }
+    public boolean insertMeals(List<Meal> meals) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        boolean allInserted = true;
+
+        db.beginTransaction();
+        try {
+            for (Meal meal : meals) {
+                ContentValues values = new ContentValues();
+                values.put(MEAL_NAME, meal.getName());
+                values.put(MEAL_IMAGE_URL, meal.getImageUrl());
+                values.put(MEAL_CALORIES, meal.getCalories());
+                values.put(MEAL_PROTEIN, meal.getProtein());
+                values.put(MEAL_CARBS, meal.getCarbs());
+                values.put(MEAL_FAT, meal.getFats());
+
+                // Optionally, add the current date or pass it as a parameter
+                String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+                values.put(MEAL_DATE, currentDate);
+
+                long result = db.insert(MEALS_TABLE, null, values);
+                if (result == -1) {
+                    allInserted = false;
+                    // Optionally, handle the error or break the loop
+                    break;
+                }
+            }
+            if (allInserted) {
+                db.setTransactionSuccessful();
+            }
+        } catch (Exception e) {
+            Log.e("DatabaseHelper", "Error inserting meals", e);
+            allInserted = false;
+        } finally {
+            db.endTransaction();
+            db.close();
+        }
+        return allInserted;
+    }
+
+    public List<Meal> getAllSavedMeals() {
+        List<Meal> savedMeals = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+
+        try {
+            String[] columns = {
+                    MEAL_COLUMN_ID,
+                    MEAL_NAME,
+                    MEAL_IMAGE_URL,
+                    MEAL_CALORIES,
+                    MEAL_PROTEIN,
+                    MEAL_CARBS,
+                    MEAL_FAT,
+                    MEAL_EATEN_TODAY,
+                    MEAL_DATE
+            };
+
+            cursor = db.query(
+                    MEALS_TABLE,
+                    columns,
+                    null,
+                    null,
+                    null,
+                    null,
+                    MEAL_DATE + " DESC"
+            );
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    String name = cursor.getString(cursor.getColumnIndexOrThrow(MEAL_NAME));
+                    String imageUrl = cursor.getString(cursor.getColumnIndexOrThrow(MEAL_IMAGE_URL));
+                    int calories = cursor.getInt(cursor.getColumnIndexOrThrow(MEAL_CALORIES));
+                    int protein = cursor.getInt(cursor.getColumnIndexOrThrow(MEAL_PROTEIN));
+                    int carbs = cursor.getInt(cursor.getColumnIndexOrThrow(MEAL_CARBS));
+                    int fat = cursor.getInt(cursor.getColumnIndexOrThrow(MEAL_FAT));
+                    String date = cursor.getString(cursor.getColumnIndexOrThrow(MEAL_DATE));
+
+                    Meal meal = new Meal(name, imageUrl, calories, protein, carbs, fat);
+                    // Optionally, set date if your Meal class has such a field
+                    // meal.setDate(date);
+                    savedMeals.add(meal);
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e("DatabaseHelper", "Error retrieving saved meals", e);
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+            if (db.isOpen()) {
+                db.close();
+            }
+        }
+
+        return savedMeals;
+    }
+
+    public List<String> getDistinctMealDates() {
+        List<String> dates = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+        try {
+            String query = "SELECT DISTINCT " + MEAL_DATE + " FROM " + MEALS_TABLE + " ORDER BY " + MEAL_DATE + " DESC";
+            cursor = db.rawQuery(query, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    String date = cursor.getString(cursor.getColumnIndexOrThrow(MEAL_DATE));
+                    dates.add(date);
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e("DatabaseHelper", "Error fetching distinct meal dates", e);
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+            if (db.isOpen()) {
+                db.close();
+            }
+        }
+        return dates;
+    }
+
+    public List<Meal> getMealsByDate(String date) {
+        List<Meal> meals = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+
+        try {
+            String selection = MEAL_DATE + " = ?";
+            String[] selectionArgs = { date };
+
+            cursor = db.query(
+                    MEALS_TABLE,
+                    null,
+                    selection,
+                    selectionArgs,
+                    null,
+                    null,
+                    null
+            );
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    String name = cursor.getString(cursor.getColumnIndexOrThrow(MEAL_NAME));
+                    String imageUrl = cursor.getString(cursor.getColumnIndexOrThrow(MEAL_IMAGE_URL));
+                    int calories = cursor.getInt(cursor.getColumnIndexOrThrow(MEAL_CALORIES));
+                    int protein = cursor.getInt(cursor.getColumnIndexOrThrow(MEAL_PROTEIN));
+                    int carbs = cursor.getInt(cursor.getColumnIndexOrThrow(MEAL_CARBS));
+                    int fat = cursor.getInt(cursor.getColumnIndexOrThrow(MEAL_FAT));
+
+                    Meal meal = new Meal(name, imageUrl, calories, protein, carbs, fat);
+                    meals.add(meal);
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e("DatabaseHelper", "Error fetching meals by date", e);
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+            if (db.isOpen()) {
+                db.close();
+            }
+        }
+
+        return meals;
+    }
+
 
 }

@@ -91,7 +91,7 @@ public class DataFragment extends Fragment {
         } else {
             builder.append("No data available.");
         }
-        binding.textData.setText(builder.toString());
+        //binding.textData.setText(builder.toString());
 
     }
 

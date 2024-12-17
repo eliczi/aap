@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/nav_home">
 
@@ -16,13 +17,7 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right"/>
-        <action
-            android:id="@+id/action_home_to_workouts"
-            app:destination="@id/nav_workouts"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right"/>
+
         <action
             android:id="@+id/action_home_to_meals"
             app:destination="@id/nav_meals"
@@ -48,24 +43,6 @@
         android:name="com.example.aap.ui.data.DataFragment"
         android:label="Data" />
 
-    <!-- Workouts Fragment -->
-    <fragment
-        android:id="@+id/nav_workouts"
-        android:name="com.example.aap.ui.workouts.WorkoutFragment"
-        android:label="Workouts">
-        <action
-            android:id="@+id/action_workoutFragment_to_workoutDetailFragment"
-            app:destination="@id/workoutDetailFragment"
-            />
-    </fragment>
-
-
-    <fragment
-        android:id="@+id/workoutDetailFragment"
-        android:name="com.example.aap.ui.workouts.WorkoutDetailFragment"
-        android:label="Workout Details">
-    </fragment>
-
 
 
 
@@ -73,7 +50,12 @@
     <fragment
         android:id="@+id/nav_meals"
         android:name="com.example.aap.ui.meals.MealFragment"
-        android:label="Meals" />
+        android:label="Meals"
+        tools:layout="@layout/fragment_meals">
+        <action
+            android:id="@+id/action_mealFragment_to_mealHistoryFragment"
+            app:destination="@id/mealHistoryFragment" />
+    </fragment>
 
 
     <fragment
@@ -91,5 +73,25 @@
             app:popUpTo="@id/nav_home"
             app:popUpToInclusive="false" />/>
         </fragment>
+
+    <fragment
+        android:id="@+id/mealHistoryFragment"
+        android:name="com.example.aap.ui.meals.MealHistoryFragment"
+        android:label="Meal History"
+        tools:layout="@layout/fragment_meal_history">
+        <action
+            android:id="@+id/action_mealHistoryFragment_to_mealPlanFragment"
+            app:destination="@id/mealPlanFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/mealPlanFragment"
+        android:name="com.example.aap.ui.meals.MealPlanFragment"
+        android:label="Meal Plan"
+        tools:layout="@layout/fragment_meal_plan">
+        <argument
+            android:name="date"
+            app:argType="string" />
+    </fragment>
 
 </navigation>
