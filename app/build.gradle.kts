@@ -48,6 +48,7 @@ dependencies {
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
     implementation(libs.anychart.android)
+    implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
     implementation(libs.picasso)
     implementation("org.osmdroid:osmdroid-android:6.1.20")
     implementation("androidx.viewpager2:viewpager2:1.1.0")
