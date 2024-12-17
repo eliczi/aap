@@ -18,9 +18,18 @@
             android:text="Welcome to Profile"
             android:textSize="24sp"
             android:textStyle="bold"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Calories Display TextView -->
+        <TextView
+            android:id="@+id/textCalories"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Calories: Not set"
+            android:textSize="18sp"
             android:layout_marginBottom="24dp"/>
 
-        <!-- Gain Weight Button -->
+        <!-- Calorie Intake Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonCalorieIntake"
             android:layout_width="match_parent"
@@ -29,7 +38,7 @@
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_marginBottom="12dp"/>
 
-        <!-- Change Physical Attributes Button (Initially Hidden) -->
+        <!-- Change Physical Attributes Button (Initially Visible) -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonChangePhysicalAttributes"
             android:layout_width="match_parent"
@@ -92,22 +101,6 @@
                     android:layout_height="wrap_content"
                     android:inputType="number" />
             </com.google.android.material.textfield.TextInputLayout>
-            <!-- New Daily Calorie Intake Input -->
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Daily Calorie Intake (kcal)"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_marginBottom="12dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/editCalorieIntake"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="number" />
-            </com.google.android.material.textfield.TextInputLayout>
-
 
             <!-- Save Data Button -->
             <com.google.android.material.button.MaterialButton

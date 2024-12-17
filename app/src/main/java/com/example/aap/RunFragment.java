@@ -39,8 +39,12 @@ import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+
 
 public class RunFragment extends Fragment implements SensorEventListener {
 
@@ -383,6 +387,27 @@ public class RunFragment extends Fragment implements SensorEventListener {
         if (sensorManager != null) {
             sensorManager.unregisterListener(this);
         }
+
+
+        if (isTracking) { // Check if tracking was active
+            // Get the current date
+            String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+
+            // Create a Workout object
+            long elapsedTime = System.currentTimeMillis() - startTime;
+            Workout workout = new Workout(totalDistance, elapsedTime, averageSpeed, stepCount, caloriesBurned, new ArrayList<>(geoPoints), currentDate, elevationChange);
+
+            Log.d("RunFragment", "Workout stopped: " + workout.toString());
+            // Insert the workout into the database
+            boolean inserted = databaseHelper.insertWorkout(workout);
+
+            if (inserted) {
+                Toast.makeText(requireContext(), "Workout saved successfully!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(requireContext(), "Failed to save workout.", Toast.LENGTH_SHORT).show();
+            }
+        }
+
 
         // Reset everything
         isTracking = false;

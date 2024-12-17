@@ -97,7 +97,7 @@ public class MealFragment extends Fragment {
                 Toast.makeText(getContext(), "No meals to save.", Toast.LENGTH_SHORT).show();
                 return;
             }
-            boolean success = databaseHelper.insertMeals(mealList);
+            boolean success = databaseHelper.insertMeals(mealList, null);
             if (success) {
                 Toast.makeText(getContext(), "Meal plan saved successfully.", Toast.LENGTH_SHORT).show();
                 binding.buttonSaveMeals.setEnabled(false); // Disable save button after successful save
@@ -163,9 +163,10 @@ public class MealFragment extends Fragment {
         openAITextService = RetrofitClient.getOpenAITextClient();
 
         String prompt = "Generate 4 meal suggestions for someone whose daily calorie intake is "
-                + "Losing weight"
+                + "" + calories
                 + ". Provide each meal in a JSON array format with keys: name, calories, protein, carbs, and fat."
-                + "Where values for all the keys except name are ints. The meals should be breakfast, lunch, dinner and supper";
+                + "Where values for all the keys except name are ints. The meals should be breakfast, lunch, dinner and supper"
+                + "The name should be a meal name, not breakfast or dinner.";
 
         // Create the request body as a Map
         Map<String, Object> requestBody = new HashMap<>();
@@ -196,6 +197,9 @@ public class MealFragment extends Fragment {
                         mealList.clear();
                         mealList.addAll(generatedMeals);
                         mealAdapter.setMealList(mealList);
+                        binding.recyclerViewMeals.setVisibility(View.VISIBLE);
+                        textViewNoMealPlan.setVisibility(View.GONE);
+
                         // Now fetch images for the generated meals
                         binding.buttonSaveMeals.setVisibility(View.VISIBLE);
                         //fetchMealImages(generatedMeals);

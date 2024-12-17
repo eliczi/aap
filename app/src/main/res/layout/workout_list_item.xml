@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/workout_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=" "
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/workout_distance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Distance: " />
+
+    <TextView
+        android:id="@+id/workout_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Time: " />
+
+    <TextView
+        android:id="@+id/workout_avg_speed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Avg Speed: " />
+    <TextView
+        android:id="@+id/workout_elevation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Elevation: " />
+
+</LinearLayout>

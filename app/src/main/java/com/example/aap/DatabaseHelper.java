@@ -21,11 +21,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.osmdroid.util.GeoPoint;
+
 
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "UserData.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 4;
 
     public static final String TABLE_NAME = "UserInfo";
     public static final String COLUMN_ID = "id";
@@ -46,6 +48,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String MEAL_FAT = "fat";
     public static final String MEAL_EATEN_TODAY = "eatenToday";
     public static final String MEAL_DATE = "date"; // To track when the meal was eaten
+
+    //running
+    public static final String WORKOUTS_TABLE = "Workouts";
+    public static final String WORKOUT_ID = "workout_id";
+    public static final String WORKOUT_DISTANCE = "distance";
+    public static final String WORKOUT_TIME = "time";
+    public static final String WORKOUT_AVG_SPEED = "avg_speed";
+    public static final String WORKOUT_STEPS = "steps";
+    public static final String WORKOUT_CALORIES = "calories";
+    public static final String WORKOUT_PATH = "path";
+    public static final String WORKOUT_DATE = "date";
+    public static final String WORKOUT_ELEVATION_CHANGE = "elevation_change";
 
 
     public DatabaseHelper(Context context) {
@@ -71,33 +85,61 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + MEAL_PROTEIN + " INTEGER,"
                 + MEAL_CARBS + " INTEGER,"
                 + MEAL_FAT + " INTEGER,"
-                + MEAL_DATE + " TEXT"
+                + MEAL_DATE + " TEXT,"
+                + MEAL_EATEN_TODAY + " INTEGER"
                 + ")";
-//        + MEAL_EATEN_TODAY + " INTEGER DEFAULT 0" // 0 for not eaten, 1 for eaten
-//                + ")";
+
+        String CREATE_WORKOUTS_TABLE = "CREATE TABLE " + WORKOUTS_TABLE + "("
+                + WORKOUT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + WORKOUT_DISTANCE + " REAL,"
+                + WORKOUT_TIME + " INTEGER,"
+                + WORKOUT_AVG_SPEED + " REAL,"
+                + WORKOUT_STEPS + " INTEGER,"
+                + WORKOUT_CALORIES + " REAL,"
+                + WORKOUT_PATH + " TEXT," // Store path as a serialized string
+                + WORKOUT_DATE + " TEXT,"
+                + WORKOUT_ELEVATION_CHANGE + " REAL"
+                + ")";
+
         db.execSQL(CREATE_USERINFO_TABLE);
         db.execSQL(CREATE_MEALS_TABLE);
+        db.execSQL(CREATE_WORKOUTS_TABLE);
         insertDummyData(db);
+        insertDummyMealsData(db);
 
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 2) {
+        if (oldVersion < 3) {
             // Drop the old tables
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
             // Recreate tables with the new schem
             onCreate(db);
         }
+        if (oldVersion < 4) {
+
+            String CREATE_WORKOUTS_TABLE = "CREATE TABLE " + WORKOUTS_TABLE + "("
+                    + WORKOUT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + WORKOUT_DISTANCE + " REAL,"
+                    + WORKOUT_TIME + " INTEGER,"
+                    + WORKOUT_AVG_SPEED + " REAL,"
+                    + WORKOUT_STEPS + " INTEGER,"
+                    + WORKOUT_CALORIES + " REAL,"
+                    + WORKOUT_PATH + " TEXT," // Store path as a serialized string
+                    + WORKOUT_DATE + " TEXT,"
+                    + WORKOUT_ELEVATION_CHANGE + " REAL" // Make sure this column is included
+                    + ")";
+            db.execSQL(CREATE_WORKOUTS_TABLE);
+        }
     }
 
-    public boolean insertUserData(String goal, float height, float weight, int age, int calories) {
+    public boolean insertUserData(String goal, float height, float weight, int age) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_HEIGHT, height);
         values.put(COLUMN_WEIGHT, weight);
         values.put(COLUMN_AGE, age);
-        values.put(COLUMN_CALORIES, calories);
 
         String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
         values.put(COLUMN_DATE, currentDate);
@@ -165,6 +207,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         }
 
+        // Insert dummy Workouts
+        List<GeoPoint> dummyPath1 = new ArrayList<>();
+        dummyPath1.add(new GeoPoint(46.005, 8.954));
+        dummyPath1.add(new GeoPoint(46.006, 8.955));
+        dummyPath1.add(new GeoPoint(46.007, 8.956));
+
+        Workout workout1 = new Workout(2500, 3600000, 2.5, 3000, 200, dummyPath1, "2024-12-15", 50);
+        insertWorkout(workout1, db);
+
+        List<GeoPoint> dummyPath2 = new ArrayList<>();
+        dummyPath2.add(new GeoPoint(46.008, 8.957));
+        dummyPath2.add(new GeoPoint(46.009, 8.958));
+        dummyPath2.add(new GeoPoint(46.010, 8.959));
+
+        Workout workout2 = new Workout(5000, 7200000, 5.0, 6000, 400, dummyPath2, "2024-12-17", 100);
+        insertWorkout(workout2, db);
+
     }
     private String getDateString(int daysOffset) {
         // Implement date formatting
@@ -172,6 +231,62 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Calendar calendar = java.util.Calendar.getInstance();
         calendar.add(java.util.Calendar.DAY_OF_YEAR, daysOffset);
         return sdf.format(calendar.getTime());
+    }
+
+    // returns false if fails
+    public boolean insertWorkout(Workout workout, SQLiteDatabase db) {
+        SQLiteDatabase database = db;
+        if (database == null) {
+            database = this.getWritableDatabase();
+        }
+        ContentValues values = new ContentValues();
+        values.put(WORKOUT_DISTANCE, workout.getDistance());
+        values.put(WORKOUT_TIME, workout.getTime());
+        values.put(WORKOUT_AVG_SPEED, workout.getAverageSpeed());
+        values.put(WORKOUT_STEPS, workout.getSteps());
+        values.put(WORKOUT_CALORIES, workout.getCalories());
+        values.put(WORKOUT_PATH, serializeGeoPoints(workout.getPath()));
+        values.put(WORKOUT_DATE, workout.getDate());
+        values.put(WORKOUT_ELEVATION_CHANGE, workout.getElevationChange());
+
+        long result = database.insert(WORKOUTS_TABLE, null, values);
+        if (db == null) {
+            database.close();
+        }
+        return result != -1;
+    }
+
+    // Overload the method for backward compatibility if needed
+    public boolean insertWorkout(Workout workout) {
+        return insertWorkout(workout, null);
+    }
+
+    // Helper method to serialize the list of GeoPoints to a string
+    // for storing in db
+    private String serializeGeoPoints(List<GeoPoint> geoPoints) {
+        StringBuilder sb = new StringBuilder();
+        for (GeoPoint point : geoPoints) {
+            sb.append(point.getLatitude()).append(",").append(point.getLongitude()).append(";");
+        }
+        return sb.toString();
+    }
+
+    // Helper method to deserialize the string back to a list of GeoPoints
+    private List<GeoPoint> deserializeGeoPoints(String pathString) {
+        List<GeoPoint> geoPoints = new ArrayList<>();
+        if (pathString == null || pathString.isEmpty()) {
+            return geoPoints;
+        }
+        String[] points = pathString.split(";");
+        for (String point : points) {
+            String[] latLng = point.split(",");
+            if (latLng.length == 2) {
+                double lat = Double.parseDouble(latLng[0]);
+                double lng = Double.parseDouble(latLng[1]);
+                geoPoints.add(new GeoPoint(lat, lng));
+            }
+        }
+        return geoPoints;
     }
 
     public float getLatestWeight() {
@@ -185,43 +300,53 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
         return weight;
     }
-    public boolean insertMeals(List<Meal> meals) {
-        SQLiteDatabase db = this.getWritableDatabase();
+
+    public boolean insertMeals(List<Meal> meals, String date, SQLiteDatabase database) {
+        SQLiteDatabase db = database;
         boolean allInserted = true;
 
-        db.beginTransaction();
-        try {
-            for (Meal meal : meals) {
-                ContentValues values = new ContentValues();
-                values.put(MEAL_NAME, meal.getName());
-                values.put(MEAL_IMAGE_URL, meal.getImageUrl());
-                values.put(MEAL_CALORIES, meal.getCalories());
-                values.put(MEAL_PROTEIN, meal.getProtein());
-                values.put(MEAL_CARBS, meal.getCarbs());
-                values.put(MEAL_FAT, meal.getFats());
+        for (Meal meal : meals) {
+            ContentValues values = new ContentValues();
+            values.put(MEAL_NAME, meal.getName());
+            values.put(MEAL_IMAGE_URL, meal.getImageUrl());
+            values.put(MEAL_CALORIES, meal.getCalories());
+            values.put(MEAL_PROTEIN, meal.getProtein());
+            values.put(MEAL_CARBS, meal.getCarbs());
+            values.put(MEAL_FAT, meal.getFats());
 
-                // Optionally, add the current date or pass it as a parameter
-                String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-                values.put(MEAL_DATE, currentDate);
 
-                long result = db.insert(MEALS_TABLE, null, values);
-                if (result == -1) {
-                    allInserted = false;
-                    // Optionally, handle the error or break the loop
-                    break;
-                }
+            // Optionally, add the current date or pass it as a parameter
+            String currentDate;
+            if(date == null)
+            {
+                currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
             }
-            if (allInserted) {
-                db.setTransactionSuccessful();
+            else{
+                currentDate = date;
             }
-        } catch (Exception e) {
-            Log.e("DatabaseHelper", "Error inserting meals", e);
-            allInserted = false;
-        } finally {
-            db.endTransaction();
-            db.close();
+            values.put(MEAL_DATE, currentDate);
+
+            long result = db.insert(MEALS_TABLE, null, values);
+            if (result == -1) {
+                allInserted = false;
+                // Optionally, handle the error or break the loop
+                break;
+            }
         }
+        if (db == null) {
+            database.close();
+        }
+
+
+
         return allInserted;
+    }
+
+    public boolean insertMeals(List<Meal> meals, String date) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        boolean result = insertMeals(meals, date, db);
+        db.close();
+        return result;
     }
 
     public List<Meal> getAllSavedMeals() {
@@ -352,6 +477,82 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         return meals;
+    }
+
+
+    public List<Workout> getAllWorkouts() {
+        List<Workout> workoutList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(WORKOUTS_TABLE, null, null, null, null, null, WORKOUT_DATE + " DESC");
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                double distance = cursor.getDouble(cursor.getColumnIndexOrThrow(WORKOUT_DISTANCE));
+                long time = cursor.getLong(cursor.getColumnIndexOrThrow(WORKOUT_TIME));
+                double avgSpeed = cursor.getDouble(cursor.getColumnIndexOrThrow(WORKOUT_AVG_SPEED));
+                int steps = cursor.getInt(cursor.getColumnIndexOrThrow(WORKOUT_STEPS));
+                double calories = cursor.getDouble(cursor.getColumnIndexOrThrow(WORKOUT_CALORIES));
+                String pathString = cursor.getString(cursor.getColumnIndexOrThrow(WORKOUT_PATH));
+                List<GeoPoint> path = deserializeGeoPoints(pathString);
+                String date = cursor.getString(cursor.getColumnIndexOrThrow(WORKOUT_DATE));
+                float elevationChange = cursor.getFloat(cursor.getColumnIndexOrThrow(WORKOUT_ELEVATION_CHANGE));
+
+                Workout workout = new Workout(distance, time, avgSpeed, steps, calories, path, date, elevationChange);
+                workoutList.add(workout);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        db.close();
+        return workoutList;
+    }
+
+    public void insertDummyMealsData(SQLiteDatabase db) {
+        // Create dummy data for 5 days, 4 meals each day
+
+        List<Meal> day1Meals = new ArrayList<>();
+        day1Meals.add(new Meal("Oatmeal with Berries", "https://example.com/oatmeal.jpg", 300, 10, 45, 5));
+        day1Meals.add(new Meal("Grilled Chicken Salad", "https://example.com/chicken_salad.jpg", 350, 30, 20, 10));
+        day1Meals.add(new Meal("Salmon with Vegetables", "https://example.com/salmon_veggies.jpg", 500, 40, 15, 20));
+        day1Meals.add(new Meal("Greek Yogurt", "https://example.com/greek_yogurt.jpg", 150, 15, 10, 0));
+
+        List<Meal> day2Meals = new ArrayList<>();
+        day2Meals.add(new Meal("Scrambled Eggs", "https://example.com/scrambled_eggs.jpg", 250, 20, 2, 15));
+        day2Meals.add(new Meal("Quinoa Bowl", "https://example.com/quinoa_bowl.jpg", 400, 15, 60, 10));
+        day2Meals.add(new Meal("Grilled Steak", "https://example.com/grilled_steak.jpg", 600, 50, 5, 40));
+        day2Meals.add(new Meal("Apple with Almond Butter", "https://example.com/apple_almond.jpg", 200, 5, 25, 10));
+
+        List<Meal> day3Meals = new ArrayList<>();
+        day3Meals.add(new Meal("Spinach Banana Smoothie", "https://example.com/smoothie.jpg", 400, 15, 40, 15));
+        day3Meals.add(new Meal("Veggie Wrap", "https://example.com/veggie_wrap.jpg", 350, 10, 50, 15));
+        day3Meals.add(new Meal("Turkey Burger", "https://example.com/turkey_burger.jpg", 450, 30, 30, 20));
+        day3Meals.add(new Meal("Cottage Cheese", "https://example.com/cottage_cheese.jpg", 120, 15, 5, 2));
+
+        List<Meal> day4Meals = new ArrayList<>();
+        day4Meals.add(new Meal("Overnight Oats", "https://example.com/overnight_oats.jpg", 320, 12, 50, 8));
+        day4Meals.add(new Meal("Lentil Soup", "https://example.com/lentil_soup.jpg", 300, 15, 40, 8));
+        day4Meals.add(new Meal("Pasta with Chicken", "https://example.com/pasta_chicken.jpg", 550, 30, 65, 20));
+        day4Meals.add(new Meal("Mixed Nuts", "https://example.com/mixed_nuts.jpg", 180, 6, 10, 12));
+
+        List<Meal> day5Meals = new ArrayList<>();
+        day5Meals.add(new Meal("Avocado Toast", "https://example.com/avocado_toast.jpg", 260, 8, 35, 10));
+        day5Meals.add(new Meal("Brown Rice & Beans", "https://example.com/rice_beans.jpg", 450, 15, 75, 10));
+        day5Meals.add(new Meal("Grilled Shrimp & Veggies", "https://example.com/shrimp_veggies.jpg", 400, 35, 15, 8));
+        day5Meals.add(new Meal("Protein Shake", "https://example.com/protein_shake.jpg", 250, 25, 15, 5));
+
+
+        boolean day1Success = insertMeals(day1Meals, "2023-12-01", db);
+        boolean day2Success = insertMeals(day2Meals, "2023-12-02", db);
+        boolean day3Success = insertMeals(day3Meals, "2023-12-03", db);
+        boolean day4Success = insertMeals(day4Meals, "2023-12-04", db);
+        boolean day5Success = insertMeals(day5Meals, "2023-12-05", db);
+
+        if (day1Success && day2Success && day3Success && day4Success && day5Success) {
+            // All days inserted successfully
+            Log.d("DummyData", "All meals inserted successfully!");
+        } else {
+            // Handle insertion failures
+            Log.e("DummyData", "Some meals failed to insert.");
+        }
     }
 
 
