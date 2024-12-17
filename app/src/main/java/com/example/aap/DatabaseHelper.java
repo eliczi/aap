@@ -25,15 +25,15 @@ import java.util.Map;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "UserData.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 2;
 
     public static final String TABLE_NAME = "UserInfo";
     public static final String COLUMN_ID = "id";
-    public static final String COLUMN_GOAL = "goal";
     public static final String COLUMN_HEIGHT = "height";
     public static final String COLUMN_WEIGHT = "weight";
     public static final String COLUMN_AGE = "age";
     public static final String COLUMN_DATE = "date";
+    public static final String COLUMN_CALORIES = "calories";
 
     //meals
     public static final String MEALS_TABLE = "Meals";
@@ -56,11 +56,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String CREATE_USERINFO_TABLE = "CREATE TABLE " + TABLE_NAME + "("
                 + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + COLUMN_GOAL + " TEXT,"
                 + COLUMN_HEIGHT + " REAL,"
                 + COLUMN_WEIGHT + " REAL,"
                 + COLUMN_AGE + " INTEGER,"
-                + COLUMN_DATE + " TEXT)";
+                + COLUMN_DATE + " TEXT,"
+                + COLUMN_CALORIES + " INTEGER)";
 
 
         String CREATE_MEALS_TABLE = "CREATE TABLE " + MEALS_TABLE + "("
@@ -71,9 +71,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + MEAL_PROTEIN + " INTEGER,"
                 + MEAL_CARBS + " INTEGER,"
                 + MEAL_FAT + " INTEGER,"
-                + MEAL_DATE + " TEXT" // Optional: To track when the meal was eaten
+                + MEAL_DATE + " TEXT"
                 + ")";
-
+//        + MEAL_EATEN_TODAY + " INTEGER DEFAULT 0" // 0 for not eaten, 1 for eaten
+//                + ")";
         db.execSQL(CREATE_USERINFO_TABLE);
         db.execSQL(CREATE_MEALS_TABLE);
         insertDummyData(db);
@@ -82,7 +83,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 4) {
+        if (oldVersion < 2) {
             // Drop the old tables
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
             // Recreate tables with the new schem
@@ -90,13 +91,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public boolean insertUserData(String goal, float height, float weight, int age) {
+    public boolean insertUserData(String goal, float height, float weight, int age, int calories) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(COLUMN_GOAL, goal);
         values.put(COLUMN_HEIGHT, height);
         values.put(COLUMN_WEIGHT, weight);
         values.put(COLUMN_AGE, age);
+        values.put(COLUMN_CALORIES, calories);
 
         String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
         values.put(COLUMN_DATE, currentDate);
@@ -154,11 +155,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long result;
         for (int i = 1; i <= 10; i++) {
             ContentValues values = new ContentValues();
-            values.put(COLUMN_GOAL, "Lose Weight");
             values.put(COLUMN_HEIGHT, 170.0 + i);
             values.put(COLUMN_WEIGHT, 70.0 - i);
             values.put(COLUMN_AGE, 25 + i);
-            String date = getDateString(-10 + i);
+            values.put(COLUMN_CALORIES, 0);
+            String date = getDateString(-11 + i);
             values.put(COLUMN_DATE, date);
             result = db.insert(TABLE_NAME, null, values);
 

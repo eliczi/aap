@@ -16,6 +16,7 @@ public class Meal {
         this.protein = protein;
         this.carbs = carbs;
         this.fat = fat;
+        this.eatenToday = false;
     }
 
     public boolean isEatenToday() {

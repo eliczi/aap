@@ -31,15 +31,16 @@ public class ProfileFragment extends Fragment {
     private static final String PREFS_NAME = "UserPrefs";
     private static final String KEY_GOAL_SELECTED = "GoalSelected";
     private static final String KEY_USER_GOAL = "UserGoal";
+    private static final String KEY_USER_CALORIE = "Calorie";
     private static final String KEY_SETUP_COMPLETED = "SetupCompleted";
 
     // UI Elements
     private TextView textView;
     private Button buttonGainWeight, buttonLoseWeight, buttonStrength;
-    private Button buttonChangeGoal, buttonChangePhysicalAttributes;
+    private Button buttonCalorie, buttonChangePhysicalAttributes;
     private Button buttonSaveData;
     private LinearLayout inputLayout;
-    private EditText editHeight, editWeight, editAge;
+    private EditText editHeight, editWeight, editAge, editCalories;
 
     // Log tag for debugging
     private static final String TAG = "SetupFragment";
@@ -55,118 +56,65 @@ public class ProfileFragment extends Fragment {
 
         initUIElements(root);
 
-        setupInitialState();
+        //setupInitialState();
         profileViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String s) {
                 textView.setText(s);
             }
         });
+        buttonCalorie.setOnClickListener(v -> {
+            Toast.makeText(getActivity(), "Calories: " , Toast.LENGTH_SHORT).show();
+        });
+        buttonChangePhysicalAttributes.setOnClickListener(v -> {
+            showPhysicalAttributesInput();
+        });
+        buttonSaveData.setOnClickListener(v -> saveUserData());
 
         return root;
     }
 
     private void initUIElements(View root) {
         textView = root.findViewById(R.id.text_profile);
-        buttonGainWeight = root.findViewById(R.id.buttonGainWeight);
-        buttonLoseWeight = root.findViewById(R.id.buttonLoseWeight);
-        buttonStrength = root.findViewById(R.id.buttonStrength);
-        buttonChangeGoal = root.findViewById(R.id.buttonChangeGoal);
+
         buttonChangePhysicalAttributes = root.findViewById(R.id.buttonChangePhysicalAttributes);
         inputLayout = root.findViewById(R.id.inputLayout);
         editHeight = root.findViewById(R.id.editHeight);
         editWeight = root.findViewById(R.id.editWeight);
         editAge = root.findViewById(R.id.editAge);
+        editCalories = root.findViewById(R.id.editCalorieIntake);
         buttonSaveData = root.findViewById(R.id.buttonSaveData);
+        buttonCalorie = root.findViewById(R.id.buttonCalorieIntake);
     }
 
-    private void setupInitialState() {
-        boolean goalSelected = sharedPreferences.getBoolean(KEY_GOAL_SELECTED, false);
-
-        if (goalSelected) {
-            String userGoal = sharedPreferences.getString(KEY_USER_GOAL, "No goal set");
-            profileViewModel.setText("Your goal: " + userGoal);
-
-            setGoalButtonsVisibility(View.GONE);
-
-            buttonChangeGoal.setVisibility(View.VISIBLE);
-            buttonChangePhysicalAttributes.setVisibility(View.VISIBLE);
-
-            inputLayout.setVisibility(View.GONE);
-
-            buttonChangeGoal.setOnClickListener(v -> resetGoalSelection());
-
-            buttonChangePhysicalAttributes.setOnClickListener(v -> showPhysicalAttributesInput());
-
-        } else {
-            setupGoalSelection();
-
-            buttonChangeGoal.setVisibility(View.GONE);
-            buttonChangePhysicalAttributes.setVisibility(View.GONE);
-        }
-
-        buttonSaveData.setOnClickListener(v -> saveUserData());
-    }
 
     private void setGoalButtonsVisibility(int visibility) {
-        buttonGainWeight.setVisibility(visibility);
-        buttonLoseWeight.setVisibility(visibility);
-        buttonStrength.setVisibility(visibility);
+//        buttonGainWeight.setVisibility(visibility);
+//        buttonLoseWeight.setVisibility(visibility);
+//        buttonStrength.setVisibility(visibility);
     }
 
-    private void resetGoalSelection() {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(KEY_GOAL_SELECTED, false);
-        editor.remove(KEY_USER_GOAL);
-        editor.apply();
 
-        profileViewModel.setText("Select your goal:");
-        buttonChangeGoal.setVisibility(View.GONE);
-        buttonChangePhysicalAttributes.setVisibility(View.GONE);
-        setupGoalSelection();
-        inputLayout.setVisibility(View.GONE);
-    }
 
     private void showPhysicalAttributesInput() {
         profileViewModel.setText("");
         inputLayout.setVisibility(View.VISIBLE);
         buttonChangePhysicalAttributes.setVisibility(View.GONE);
-        buttonChangeGoal.setVisibility(View.GONE);
+        buttonCalorie.setVisibility(View.GONE);
+        //buttonChangeGoal.setVisibility(View.GONE);
     }
 
     private void setupGoalSelection() {
         setGoalButtonsVisibility(View.VISIBLE);
-        buttonGainWeight.setOnClickListener(view -> handleGoalSelection("Gain Weight"));
-        buttonLoseWeight.setOnClickListener(view -> handleGoalSelection("Lose Weight"));
-        buttonStrength.setOnClickListener(view -> handleGoalSelection("Strength"));
+//        buttonGainWeight.setOnClickListener(view -> handleGoalSelection("Gain Weight"));
+//        buttonLoseWeight.setOnClickListener(view -> handleGoalSelection("Lose Weight"));
+//        buttonStrength.setOnClickListener(view -> handleGoalSelection("Strength"));
     }
 
-    private void handleGoalSelection(String goal) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(KEY_GOAL_SELECTED, true);
-        editor.putString(KEY_USER_GOAL, goal);
-        editor.apply();
-
-        Toast.makeText(getActivity(), "Goal saved: " + goal, Toast.LENGTH_SHORT).show();
-
-        setGoalButtonsVisibility(View.GONE);
-
-        buttonChangeGoal.setVisibility(View.VISIBLE);
-        buttonChangePhysicalAttributes.setVisibility(View.VISIBLE);
-        boolean isSetupCompleted = sharedPreferences.getBoolean(KEY_SETUP_COMPLETED, false);
-        Log.d("SetupCimoketed", "" + isSetupCompleted);
-        if (!isSetupCompleted) {
-            profileViewModel.setText("");
-            inputLayout.setVisibility(View.VISIBLE);
-            buttonChangePhysicalAttributes.setVisibility(View.GONE);
-        } else {
-            profileViewModel.setText("Your goal: " + goal);
-            inputLayout.setVisibility(View.GONE);
-        }
-    }
 
     private void saveUserData() {
         String goal = sharedPreferences.getString(KEY_USER_GOAL, "");
+        String calorieStr = editCalories.getText().toString().trim();
         String heightStr = editHeight.getText().toString().trim();
         String weightStr = editWeight.getText().toString().trim();
         String ageStr = editAge.getText().toString().trim();
@@ -176,13 +124,16 @@ public class ProfileFragment extends Fragment {
                 float height = Float.parseFloat(heightStr);
                 float weight = Float.parseFloat(weightStr);
                 int age = Integer.parseInt(ageStr);
+                int calories = Integer.parseInt(calorieStr);
 
-                boolean inserted = dbHelper.insertUserData(goal, height, weight, age);
+                boolean inserted = dbHelper.insertUserData(goal, height, weight, age, calories);
                 if (inserted) {
                     Toast.makeText(getActivity(), "Data saved", Toast.LENGTH_SHORT).show();
 
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putBoolean(KEY_SETUP_COMPLETED, true);
+                    editor.putInt(KEY_USER_CALORIE, calories);
+                    Log.d("key calories", calorieStr);
                     editor.apply();
 
                     inputLayout.setVisibility(View.GONE);
@@ -190,15 +141,12 @@ public class ProfileFragment extends Fragment {
                     editHeight.setText("");
                     editWeight.setText("");
                     editAge.setText("");
+                    editCalories.setText("");
 
-                    buttonChangeGoal.setVisibility(View.VISIBLE);
+                   // buttonChangeGoal.setVisibility(View.VISIBLE);
                     buttonChangePhysicalAttributes.setVisibility(View.VISIBLE);
 
-                    String userGoal = sharedPreferences.getString(KEY_USER_GOAL, "No goal set");
-                    profileViewModel.setText("Your goal: " + userGoal);
-
-                    // Navigate back to HomeFragment
-                    //navigateToHomeFragment();
+                    profileViewModel.setText("Calories " + calorieStr );
 
                 } else {
                     Toast.makeText(getActivity(), "Save failed", Toast.LENGTH_SHORT).show();
@@ -211,14 +159,6 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-//    private void navigateToHomeFragment() {
-//        if (!setupViewModel.hasNavigated()) {
-//            setupViewModel.setHasNavigated(true);
-//
-//            Log.d("SetupFragment", "Navigating back to HomeFragment");
-//            Navigation.findNavController(requireView()).navigate(R.id.action_setup_to_home);
-//        }
-//    }
 
     @Override
     public void onDestroyView() {

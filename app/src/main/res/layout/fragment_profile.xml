@@ -22,39 +22,11 @@
 
         <!-- Gain Weight Button -->
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/buttonGainWeight"
+            android:id="@+id/buttonCalorieIntake"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Gain Weight"
-            style="@style/Widget.MaterialComponents.Button"
-            android:layout_marginBottom="12dp"/>
-
-        <!-- Lose Weight Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/buttonLoseWeight"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Lose Weight"
-            style="@style/Widget.MaterialComponents.Button"
-            android:layout_marginBottom="12dp"/>
-
-        <!-- Strength Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/buttonStrength"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Strength"
-            style="@style/Widget.MaterialComponents.Button"
-            android:layout_marginBottom="12dp"/>
-
-        <!-- Change Goal Button (Initially Hidden) -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/buttonChangeGoal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Change Goal"
-            android:visibility="gone"
-            style="@style/Widget.MaterialComponents.Button"
+            android:text="Calorie Intake"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_marginBottom="12dp"/>
 
         <!-- Change Physical Attributes Button (Initially Hidden) -->
@@ -63,8 +35,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Change Physical Attributes"
-            android:visibility="gone"
-            style="@style/Widget.MaterialComponents.Button"
+            android:visibility="visible"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_marginBottom="12dp"/>
 
         <!-- Input Layout for Physical Attributes -->
@@ -120,6 +92,22 @@
                     android:layout_height="wrap_content"
                     android:inputType="number" />
             </com.google.android.material.textfield.TextInputLayout>
+            <!-- New Daily Calorie Intake Input -->
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Daily Calorie Intake (kcal)"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_marginBottom="12dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editCalorieIntake"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number" />
+            </com.google.android.material.textfield.TextInputLayout>
+
 
             <!-- Save Data Button -->
             <com.google.android.material.button.MaterialButton

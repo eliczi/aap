@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.aap.DatabaseHelper;
 import com.example.aap.R;
@@ -58,13 +59,19 @@ public class MealHistoryFragment extends Fragment implements DateAdapter.OnDateC
      */
     @Override
     public void onDateClick(String date) {
+
+        Bundle bundle = new Bundle();
+        bundle.putString("date", date);
+
+        NavHostFragment.findNavController(MealHistoryFragment.this)
+                .navigate(R.id.action_mealHistoryFragment_to_mealPlanFragment, bundle);
         // Navigate to MealPlanFragment with the selected date
-        MealPlanFragment mealPlanFragment = MealPlanFragment.newInstance(date);
-        requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, mealPlanFragment) // Replace with your actual container ID
-                .addToBackStack(null)
-                .commit();
+//        MealPlanFragment mealPlanFragment = MealPlanFragment.newInstance(date);
+//        requireActivity().getSupportFragmentManager()
+//                .beginTransaction()
+//                .replace(R.id.fragment_container, mealPlanFragment) // Replace with your actual container ID
+//                .addToBackStack(null)
+//                .commit();
     }
 
     @Override

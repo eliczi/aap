@@ -41,11 +41,15 @@ import com.example.aap.DatabaseHelper;
 import com.example.aap.R;
 import com.example.aap.databinding.FragmentDataBinding;
 import com.example.aap.databinding.FragmentHomeBinding;
+import com.example.aap.ui.meals.Meal;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class HomeFragment extends Fragment {
@@ -55,6 +59,7 @@ public class HomeFragment extends Fragment {
     private boolean hasNavigated = false;
     private static final String PREFS_NAME = "UserPrefs";
     private static final String KEY_SETUP_COMPLETED = "SetupCompleted";
+    private static final String KEY_USER_CALORIE = "Calorie";
 
     private TextView textHome;
     private TextView buttonSteps;
@@ -75,6 +80,7 @@ public class HomeFragment extends Fragment {
     private TabLayout tabLayout;
     private ChartPageAdapter chartPagerAdapter;
 
+    private DatabaseHelper databaseHelper;
 
 
     @Override
@@ -86,7 +92,7 @@ public class HomeFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_home, container, false);
         // Initialize SharedPreferences and DatabaseHelper
         sharedPreferences = requireActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-
+        databaseHelper = new DatabaseHelper(getContext());
 //        textHome = root.findViewById(R.id.text_data);
         buttonSteps = root.findViewById(R.id.block_steps);
         buttonCalories = root.findViewById(R.id.block_calories);
@@ -109,11 +115,24 @@ public class HomeFragment extends Fragment {
             Toast.makeText(getContext(), "Steps clicked!", Toast.LENGTH_SHORT).show();
             // Add logic for what happens when steps block is clicked
         });
+        int cal = sharedPreferences.getInt(KEY_USER_CALORIE, 0);
+        displayTodayCalories();
 
         buttonCalories.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Calories clicked!", Toast.LENGTH_SHORT).show();
-            // Add logic for what happens when calories block is clicked
+            String todayDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+            List<Meal> todaysMeals = databaseHelper.getMealsByDate(todayDate);
+            int totalCaloriesConsumed = 0;
+            for (Meal meal : todaysMeals) {
+                if (meal.isEatenToday()){
+                    totalCaloriesConsumed += meal.getCalories();
+                }
+
+            }
+            int calorieGoal = sharedPreferences.getInt(KEY_USER_CALORIE, 2000);
+            String message = "Calories Consumed Today: " + totalCaloriesConsumed + " / " + calorieGoal + " cal";
+            Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
         });
+
 //        homeViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
 //            @Override
 //            public void onChanged(String s) {
@@ -240,4 +259,27 @@ public class HomeFragment extends Fragment {
         chartWeight.setChart(cartesian);
 
     }
+
+    private void displayTodayCalories() {
+        // Get today's date in "yyyy-MM-dd" format
+        String todayDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+
+        // Fetch meals eaten today
+        List<Meal> todaysMeals = databaseHelper.getMealsByDate(todayDate);
+
+        // Calculate total calories consumed today
+        int totalCaloriesConsumed = 0;
+        for (Meal meal : todaysMeals) {
+            totalCaloriesConsumed += meal.getCalories();
+        }
+
+        // Retrieve user's calorie goal from SharedPreferences
+        int calorieGoal = sharedPreferences.getInt(KEY_USER_CALORIE, 2000); // Default to 2000 if not set
+
+        // Display in the buttonCalories TextView
+        // Example format: "1500 / 2000 cal"
+        String caloriesText = totalCaloriesConsumed + " / " + calorieGoal + " cal";
+        buttonCalories.setText(caloriesText);
+    }
+
 }

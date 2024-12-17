@@ -15,37 +15,6 @@ public class RetrofitClient {
 
     private static Retrofit retrofit = null;
 
-    public static OpenAIApiService getOpenAIImageClient() {
-        if (retrofit == null) {
-
-            // Create an interceptor to add the Authorization header
-            Interceptor authInterceptor = new Interceptor() {
-                @Override
-                public Response intercept(Chain chain) throws IOException {
-                    Request original = chain.request();
-                    Log.d("OPENAI", Constants.OPENAI_API_KEY);
-                    Request.Builder requestBuilder = original.newBuilder()
-                            .header("Authorization", "Bearer " + Constants.OPENAI_API_KEY)
-                            .header("Content-Type", "application/json");
-                    Request request = requestBuilder.build();
-                    return chain.proceed(request);
-                }
-            };
-
-            OkHttpClient client = new OkHttpClient.Builder()
-                    .addInterceptor(authInterceptor)
-                    .build();
-
-            retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .client(client)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-        }
-
-        return retrofit.create(OpenAIApiService.class);
-    }
-
     public static OpenAITextService getOpenAITextClient() {
         if (retrofit == null) {
             // Same interceptor and OkHttpClient setup as in getClient(), or a different one if needed

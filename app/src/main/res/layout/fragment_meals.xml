@@ -77,6 +77,17 @@
         android:visibility="gone"
         app:indicatorSize="48dp" />
 
+    <TextView
+        android:id="@+id/textViewNoMealPlan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/no_meal_plan_today"
+        android:textSize="18sp"
+        android:textColor="@android:color/holo_red_dark"
+        android:gravity="center"
+        android:visibility="gone"
+        android:layout_marginBottom="16dp" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewMeals"
         android:layout_width="match_parent"

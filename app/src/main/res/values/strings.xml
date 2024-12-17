@@ -21,4 +21,5 @@
     <string name="history">History</string>
     <string name="add_meal">Add Meal</string>
     <string name="save_meal_plan">Save</string>
+    <string name="no_meal_plan_today">No meal plan for today</string>
 </resources>

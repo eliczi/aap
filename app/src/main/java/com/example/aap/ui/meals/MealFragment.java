@@ -1,4 +1,5 @@
 package com.example.aap.ui.meals;
+
 import com.example.aap.GoogleCustomSearchService;
 import com.example.aap.OpenAITextService;
 import android.content.Context;
@@ -29,12 +30,20 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import com.example.aap.DatabaseHelper;
+import android.view.View;
+import android.widget.TextView;
+import com.example.aap.DatabaseHelper;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 
 public class MealFragment extends Fragment {
 
     private FragmentMealsBinding binding;
     private static final String SHARED_PREFS_NAME = "UserPrefs";
     private static final String KEY_USER_GOAL = "UserGoal";
+    private static final String KEY_USER_CALORIE = "Calorie";
     private SharedPreferences sharedPreferences;
 
     private MealAdapter mealAdapter;
@@ -46,6 +55,8 @@ public class MealFragment extends Fragment {
     private static final String API_KEY = "AIzaSyBXJXW4TPKtuxTcYRIfvuWU13Py2QFzyMU";
     private static final String CX = "0028d7c052bf4430c";
 
+    private TextView textViewNoMealPlan;
+
     private DatabaseHelper databaseHelper;
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -54,11 +65,10 @@ public class MealFragment extends Fragment {
         binding = FragmentMealsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         databaseHelper = new DatabaseHelper(requireContext());
-
+        textViewNoMealPlan = binding.textViewNoMealPlan;
         // sharedPreferences
         sharedPreferences = requireActivity().getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);
 
-        String userGoal = sharedPreferences.getString(KEY_USER_GOAL, "No goal set");
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
@@ -75,14 +85,12 @@ public class MealFragment extends Fragment {
 
         binding.buttonGenerateMeal.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Started generating meal plan.", Toast.LENGTH_SHORT).show();
-            if ("No goal set".equals(userGoal)) {
-                Toast.makeText(getContext(), "Please set your goal in the settings.", Toast.LENGTH_SHORT).show();
-            } else {
-                //generateMealPlan(userGoal);
-                fetchMealIdeas(userGoal);
-                binding.buttonSaveMeals.setEnabled(true);
+            //generateMealPlan(userGoal);
+            int cal = sharedPreferences.getInt(KEY_USER_CALORIE, 2000);
+            fetchMealIdeas(cal);
+            binding.buttonSaveMeals.setEnabled(true);
 
-            }
+
         });
         binding.buttonSaveMeals.setOnClickListener(v -> {
             if (mealList.isEmpty()) {
@@ -114,6 +122,7 @@ public class MealFragment extends Fragment {
                     .navigate(R.id.action_mealFragment_to_mealHistoryFragment);
         });
 
+        loadTodaysMealPlan();
         return root;
     }
 
@@ -125,10 +134,36 @@ public class MealFragment extends Fragment {
         binding = null;
     }
 
-    private void fetchMealIdeas(String goal) {
+    private void loadTodaysMealPlan() {
+
+        // Get today's date in "yyyy-MM-dd" format
+        String todayDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+
+        // Fetch meals for today from the database
+        List<Meal> todaysMeals = databaseHelper.getMealsByDate(todayDate);
+
+        if (todaysMeals.isEmpty()) {
+            // No meal plan for today
+            textViewNoMealPlan.setVisibility(View.VISIBLE);
+            binding.recyclerViewMeals.setVisibility(View.GONE);
+        } else {
+            // Meal plan exists for today
+            mealList.clear();
+            mealList.addAll(todaysMeals);
+            mealAdapter.setMealList(mealList);
+            binding.recyclerViewMeals.setVisibility(View.VISIBLE);
+            textViewNoMealPlan.setVisibility(View.GONE);
+            // Optionally disable save button as it's already saved
+            binding.buttonSaveMeals.setEnabled(false);
+        }
+
+    }
+
+    private void fetchMealIdeas(int calories) {
         openAITextService = RetrofitClient.getOpenAITextClient();
-        String prompt = "Generate 4 meal suggestions for someone who wants to "
-                + goal.toLowerCase()
+
+        String prompt = "Generate 4 meal suggestions for someone whose daily calorie intake is "
+                + "Losing weight"
                 + ". Provide each meal in a JSON array format with keys: name, calories, protein, carbs, and fat."
                 + "Where values for all the keys except name are ints. The meals should be breakfast, lunch, dinner and supper";
 
@@ -163,7 +198,7 @@ public class MealFragment extends Fragment {
                         mealAdapter.setMealList(mealList);
                         // Now fetch images for the generated meals
                         binding.buttonSaveMeals.setVisibility(View.VISIBLE);
-                        fetchMealImages(generatedMeals);
+                        //fetchMealImages(generatedMeals);
                     } else {
                         Toast.makeText(getContext(), "No meal suggestions returned.", Toast.LENGTH_SHORT).show();
                     }
