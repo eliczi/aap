@@ -45,60 +45,22 @@ public class DataFragment extends Fragment {
 
         new TabLayoutMediator(tabLayout, viewPager,
                 (tab, position) -> {
-                    if (position == 0) {
-                        tab.setText("Weight Stats");
-                    } else {
-                        tab.setText("Workout Stats");
+                    switch (position) {
+                        case 0:
+                            tab.setText("Weight Stats");
+                            break;
+                        case 1:
+                            tab.setText("Workout Stats");
+                            break;
+                        case 2:
+                            tab.setText("Macro Stats");
+                            break;
                     }
                 }
         ).attach();
-
-        final Button buttonDeleteData = root.findViewById(R.id.button_delete_all);
-        buttonDeleteData.setOnClickListener(v -> {
-            confirmDeletion();
-        });
-
         return root;
     }
 
-    private void confirmDeletion() {
-        new AlertDialog.Builder(getContext())
-                .setTitle("Delete All Records")
-                .setMessage("Are you sure you want to delete all records? This action cannot be undone.")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        performDeletion();
-                    }
-                })
-                .setNegativeButton("No", null)
-                .show();
-    }
-
-    private void performDeletion() {
-        int rowsDeleted = dbHelper.deleteAllRecords();
-        if (rowsDeleted > 0) {
-            Toast.makeText(getContext(), "Deleted " + rowsDeleted + " records.", Toast.LENGTH_SHORT).show();
-            // Refresh the displayed data in both fragments
-            refreshDataInFragments();
-        } else {
-            Toast.makeText(getContext(), "No records to delete.", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void refreshDataInFragments() {
-        // Refresh data in WeightStatsFragment
-        Fragment weightStatsFragment = getChildFragmentManager().findFragmentByTag("f" + 0); // "f0" is the tag for the first fragment
-        if (weightStatsFragment instanceof com.example.aap.ui.data.WeightStatsFragment) {
-            ((com.example.aap.ui.data.WeightStatsFragment) weightStatsFragment).refreshData();
-        }
-
-        // Refresh data in WorkoutStatsFragment
-        Fragment workoutStatsFragment = getChildFragmentManager().findFragmentByTag("f" + 1); // "f1" is the tag for the second fragment
-        if (workoutStatsFragment instanceof WorkoutStatsFragment) {
-            ((WorkoutStatsFragment) workoutStatsFragment).refreshData();
-        }
-    }
 
     @Override
     public void onDestroyView() {

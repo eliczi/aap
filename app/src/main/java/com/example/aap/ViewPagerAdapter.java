@@ -6,6 +6,8 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.example.aap.ui.data.WeightStatsFragment;
+import com.example.aap.ui.data.MacroStatsFragment;
+
 
 public class ViewPagerAdapter extends FragmentStateAdapter {
 
@@ -21,6 +23,8 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
                 return new WeightStatsFragment();
             case 1:
                 return new WorkoutStatsFragment();
+            case 2:
+                return new MacroStatsFragment();
             default:
                 return null;
         }
@@ -28,6 +32,6 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
 
     @Override
     public int getItemCount() {
-        return 2; // Number of tabs
+        return 3; // Number of tabs
     }
 }

@@ -76,7 +76,7 @@ public class MealPlanFragment extends Fragment {
         binding.textViewMealDate.setText("Meal Plan for " + date);
 
         // Fetch meals for the date
-        mealList = databaseHelper.getMealsByDate(date);
+        mealList = databaseHelper.getMealsByDate(date, getContext());
         if (mealList.isEmpty()) {
             Toast.makeText(getContext(), "No meals found for " + date, Toast.LENGTH_SHORT).show();
         }

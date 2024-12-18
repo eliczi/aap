@@ -173,12 +173,12 @@ public class WorkoutStatsFragment extends Fragment {
         List<Workout> allWorkouts = dbHelper.getAllWorkouts();
 
         // Create and add charts for each metric
-        addChartForMetric(allWorkouts, "Distance", "km", R.color.dark_md_theme_errorContainer_mediumContrast);
-        addChartForMetric(allWorkouts, "Time", "min", R.color.dark_md_theme_errorContainer_mediumContrast);
-        addChartForMetric(allWorkouts, "Calories", "kcal", R.color.dark_md_theme_errorContainer_mediumContrast);
-        addChartForMetric(allWorkouts, "Average Speed", "km/h", R.color.dark_md_theme_errorContainer_mediumContrast);
-        addChartForMetric(allWorkouts, "Steps", "steps", R.color.dark_md_theme_errorContainer_mediumContrast);
-        addChartForMetric(allWorkouts, "Elevation Change", "m", R.color.dark_md_theme_errorContainer_mediumContrast);
+        addChartForMetric(allWorkouts, "Distance", "km", R.color.light_md_theme_background);
+        addChartForMetric(allWorkouts, "Time", "min", R.color.light_md_theme_background);
+        addChartForMetric(allWorkouts, "Calories", "kcal", R.color.light_md_theme_background);
+        addChartForMetric(allWorkouts, "Average Speed", "km/h", R.color.light_md_theme_background);
+        addChartForMetric(allWorkouts, "Steps", "steps", R.color.light_md_theme_background);
+        addChartForMetric(allWorkouts, "Elevation Change", "m", R.color.light_md_theme_background);
     }
 
     private int dpToPx(int dp) {

@@ -49,23 +49,7 @@ public class ChartPageAdapter extends RecyclerView.Adapter<ChartPageAdapter.Char
         String bgColorHex = String.format("#%06X", (0xFFFFFF & bgColorInt));
         switch (position) {
             case 0:
-                // **Line Chart Example**
-
-                    com.anychart.charts.Cartesian lineChart = drawWeightChart(bgColorHex);
-
-//                com.anychart.charts.Cartesian lineChart = AnyChart.line();
-//
-//                List<DataEntry> lineData = new ArrayList<>();
-//                lineData.add(new ValueDataEntry("x", 100));
-//                lineData.add(new ValueDataEntry("y", 120));
-//                lineData.add(new ValueDataEntry("z", 150));
-//                lineData.add(new ValueDataEntry("q", 130));
-
-                //lineChart.background().fill(bgColorHex);
-
-                //lineChart.data(lineData);
-                //lineChart.title("Sample1");
-
+                com.anychart.charts.Cartesian lineChart = drawWeightChart(bgColorHex);
                 anyChartView.setChart(lineChart);
                 break;
 

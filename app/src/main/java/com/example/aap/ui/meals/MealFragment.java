@@ -140,7 +140,7 @@ public class MealFragment extends Fragment {
         String todayDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
         // Fetch meals for today from the database
-        List<Meal> todaysMeals = databaseHelper.getMealsByDate(todayDate);
+        List<Meal> todaysMeals = databaseHelper.getMealsByDate(todayDate, getContext());
 
         if (todaysMeals.isEmpty()) {
             // No meal plan for today

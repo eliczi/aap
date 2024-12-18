@@ -65,13 +65,7 @@ public class MealHistoryFragment extends Fragment implements DateAdapter.OnDateC
 
         NavHostFragment.findNavController(MealHistoryFragment.this)
                 .navigate(R.id.action_mealHistoryFragment_to_mealPlanFragment, bundle);
-        // Navigate to MealPlanFragment with the selected date
-//        MealPlanFragment mealPlanFragment = MealPlanFragment.newInstance(date);
-//        requireActivity().getSupportFragmentManager()
-//                .beginTransaction()
-//                .replace(R.id.fragment_container, mealPlanFragment) // Replace with your actual container ID
-//                .addToBackStack(null)
-//                .commit();
+
     }
 
     @Override

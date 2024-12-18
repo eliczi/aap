@@ -57,7 +57,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
 
         // Highlight the selected item
         if (selectedItemPosition == position) {
-            holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.dark_md_theme_errorContainer_mediumContrast));
+            holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.light_md_theme_surfaceContainerHighest));
         } else {
             holder.itemView.setBackgroundColor(Color.TRANSPARENT);
         }

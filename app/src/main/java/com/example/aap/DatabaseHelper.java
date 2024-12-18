@@ -433,9 +433,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return dates;
     }
 
-    public List<Meal> getMealsByDate(String date) {
+    public static List<Meal> getMealsByDate(String date, Context context) {
+
+        DatabaseHelper databaseHelper = new DatabaseHelper(context);
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+
         List<Meal> meals = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
+        //SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = null;
 
         try {

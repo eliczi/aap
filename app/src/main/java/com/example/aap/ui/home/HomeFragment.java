@@ -96,7 +96,6 @@ public class HomeFragment extends Fragment {
 //        textHome = root.findViewById(R.id.text_data);
         buttonSteps = root.findViewById(R.id.block_steps);
         buttonCalories = root.findViewById(R.id.block_calories);
-        chartWeight = root.findViewById(R.id.any_chart_view);
         //APIlib.getInstance().setActiveAnyChartView(chartWeight);
 
         //barchartCalories = root.findViewById(R.id.any_chart_view_second);
@@ -115,12 +114,14 @@ public class HomeFragment extends Fragment {
             Toast.makeText(getContext(), "Steps clicked!", Toast.LENGTH_SHORT).show();
             // Add logic for what happens when steps block is clicked
         });
+
+
         int cal = sharedPreferences.getInt(KEY_USER_CALORIE, 0);
         displayTodayCalories();
 
         buttonCalories.setOnClickListener(v -> {
             String todayDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-            List<Meal> todaysMeals = databaseHelper.getMealsByDate(todayDate);
+            List<Meal> todaysMeals = databaseHelper.getMealsByDate(todayDate, getContext());
             int totalCaloriesConsumed = 0;
             for (Meal meal : todaysMeals) {
                 if (meal.isEatenToday()){
@@ -265,7 +266,7 @@ public class HomeFragment extends Fragment {
         String todayDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
         // Fetch meals eaten today
-        List<Meal> todaysMeals = databaseHelper.getMealsByDate(todayDate);
+        List<Meal> todaysMeals = databaseHelper.getMealsByDate(todayDate, getContext());
 
         // Calculate total calories consumed today
         int totalCaloriesConsumed = 0;

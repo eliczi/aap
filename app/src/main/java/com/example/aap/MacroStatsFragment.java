@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-
+import com.anychart.core.cartesian.series.Bar;
 import com.anychart.AnyChart;
 import com.anychart.AnyChartView;
 import com.anychart.charts.Cartesian;
@@ -19,12 +19,15 @@ import com.anychart.enums.Anchor;
 import com.anychart.enums.TooltipPositionMode;
 import com.example.aap.DatabaseHelper;
 import com.example.aap.R;
+import com.example.aap.ui.meals.Meal;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-
-public class WeightStatsFragment extends Fragment {
+public class MacroStatsFragment extends Fragment{
 
     private AnyChartView chartWeight;
     private DatabaseHelper dbHelper;
@@ -38,13 +41,15 @@ public class WeightStatsFragment extends Fragment {
         chartWeight = root.findViewById(R.id.chart_weight);
         dbHelper = new DatabaseHelper(getContext());
 
-        drawWeightChart();
+        //drawWeightChart();
+        drawNutritionalIntakeChart();
 
         return root;
     }
 
     public void refreshData() {
-        drawWeightChart();
+        //drawWeightChart();
+        drawNutritionalIntakeChart();
     }
 
     private void drawWeightChart() {
@@ -112,4 +117,72 @@ public class WeightStatsFragment extends Fragment {
 
         chartWeight.setChart(cartesian);
     }
+
+
+    private void drawNutritionalIntakeChart() {
+
+        Map<String, Float> weightDataMap = DatabaseHelper.loadWeightOverTime(getContext());
+        String todayDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        List<Meal> todaysMeals = DatabaseHelper.getMealsByDate(todayDate, getContext());
+
+        // Initialize the Cartesian Bar Chart
+        Cartesian barChart = AnyChart.bar();
+        barChart.animation(true);
+
+        // Data for Actual Values
+        List<DataEntry> actualData = new ArrayList<>();
+        actualData.add(new ValueDataEntry("Calories", 1800)); // Actual: 1800
+        actualData.add(new ValueDataEntry("Proteins", 120));  // Actual: 120g
+        actualData.add(new ValueDataEntry("Fats", 60));       // Actual: 60g
+        actualData.add(new ValueDataEntry("Carbs", 250));     // Actual: 250g
+
+        // Data for Target Goals
+        List<DataEntry> targetData = new ArrayList<>();
+        targetData.add(new ValueDataEntry("Calories", 2000)); // Goal: 2000
+        targetData.add(new ValueDataEntry("Proteins", 150));  // Goal: 150g
+        targetData.add(new ValueDataEntry("Fats", 70));       // Goal: 70g
+        targetData.add(new ValueDataEntry("Carbs", 300));     // Goal: 300g
+
+        // Adding Series for Actual Values
+        Bar actualSeries = barChart.bar(actualData);
+        actualSeries.name("Actual");
+        actualSeries.color("#4285F4"); // Optional: Blue for actual bars
+
+        // Adding Series for Target Values
+        Bar targetSeries = barChart.bar(targetData);
+        targetSeries.name("Target");
+        targetSeries.color("#FFA500"); // Optional: Orange for target bars
+
+        // Chart Configuration
+        barChart.title("Nutritional Intake vs Targets");
+
+        // Enable Tooltips for Interactivity
+        barChart.tooltip()
+                .titleFormat("{%X}")
+                .position("right")
+                .anchor("left-center")
+                .offsetX(5d)
+                .offsetY(5d)
+                .format("Value: {%Value}");
+
+        // Configure X-Axis and Y-Axis
+        barChart.xAxis(0).title("Nutrients");
+        barChart.yAxis(0).title("Quantity");
+        barChart.xAxis(0).labels().rotation(-45d);
+        barChart.yScale().minimum(0d);
+
+        // Set Chart Background Color
+        int barBgColorInt = ContextCompat.getColor(getContext(), R.color.light_md_theme_background);
+        String barBgColorHex = String.format("#%06X", (0xFFFFFF & barBgColorInt));
+        barChart.background().fill(barBgColorHex);
+
+        // Additional Chart Settings
+        barChart.interactivity().hoverMode(com.anychart.enums.HoverMode.BY_X);
+        barChart.legend().enabled(true);
+        barChart.legend().fontSize(13d);
+        barChart.legend().padding(0d, 0d, 10d, 0d);
+        chartWeight.setChart(barChart);
+    }
+
 }
+

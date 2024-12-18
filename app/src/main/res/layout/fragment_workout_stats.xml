@@ -5,11 +5,14 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/toggleButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Toggle Map/Chart" />
+        android:text="Toggle Map/Chart"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/workouts_recycler_view"
