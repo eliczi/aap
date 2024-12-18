@@ -1,6 +1,8 @@
 package com.example.aap;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -185,19 +187,44 @@ public class WorkoutStatsFragment extends Fragment {
 
     private void displayWorkoutData() {
         List<Workout> workouts = dbHelper.getAllWorkouts();
-
-        Collections.sort(workouts, (w1, w2) -> w1.getDate().compareTo(w2.getDate()));
+        Collections.sort(workouts, (w1, w2) -> w2.getDate().compareTo(w1.getDate()));
         workoutAdapter = new WorkoutAdapter(workouts, new WorkoutAdapter.OnWorkoutClickListener() {
             @Override
             public void onWorkoutClick(Workout workout) {
                 if (showMap) {
                     displayWorkoutPath(workout);
-                } else {
-
                 }
+            }
+        }, new WorkoutAdapter.OnWorkoutDeleteClickListener() {
+            @Override
+            public void onWorkoutDeleteClick(Workout workout) {
+                // Show a confirmation dialog
+                new AlertDialog.Builder(getContext())
+                        .setTitle("Delete Workout")
+                        .setMessage("Are you sure you want to delete this workout?")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // User clicked Yes button
+                                deleteWorkout(workout);
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, null) // User cancelled
+                        .show();
             }
         });
         workoutsRecyclerView.setAdapter(workoutAdapter);
+    }
+
+    private void deleteWorkout(Workout workout) {
+        // Delete the workout from the database
+        boolean deleted = dbHelper.deleteWorkout(workout.getId());
+        if (deleted) {
+            Toast.makeText(getContext(), "Workout deleted", Toast.LENGTH_SHORT).show();
+
+            refreshData();
+        } else {
+            Toast.makeText(getContext(), "Error deleting workout", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void displayWorkoutPath(Workout workout) {

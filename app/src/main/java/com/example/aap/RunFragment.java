@@ -98,6 +98,9 @@ public class RunFragment extends Fragment implements SensorEventListener {
 
     private List<Marker> mapMarkers = new ArrayList<>();
 
+    private boolean isPressureSensorAvailable = false;
+    private TextView elevationValue;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -136,7 +139,7 @@ public class RunFragment extends Fragment implements SensorEventListener {
         // Initialize Polyline
         pathOverlay = new Polyline();
         pathOverlay.setTitle("Demo Path");
-        pathOverlay.getOutlinePaint().setColor(0xFF0000FF); // Blue color
+        pathOverlay.getOutlinePaint().setColor(getResources().getColor(R.color.dark_md_theme_errorContainer_mediumContrast));
         mapView.getOverlayManager().add(pathOverlay);
 
         // Initialize Location Overlay
@@ -150,13 +153,15 @@ public class RunFragment extends Fragment implements SensorEventListener {
         // Initialize SensorManager for step detection
         sensorManager = (SensorManager) requireContext().getSystemService(Context.SENSOR_SERVICE);
         stepDetector = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
-
+        elevationValue = view.findViewById(R.id.elevation_value);
         // same for pressure (for elevation)
         pressureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
         if (pressureSensor != null) {
             sensorManager.registerListener(this, pressureSensor, SensorManager.SENSOR_DELAY_UI);
+            isPressureSensorAvailable = true;
         } else {
             Toast.makeText(requireContext(), "Pressure sensor not available!", Toast.LENGTH_SHORT).show();
+            elevationValue.setText("--");
         }
 
         // Generate demo workout (for presentation only)
@@ -175,6 +180,8 @@ public class RunFragment extends Fragment implements SensorEventListener {
         compassOverlay = new CompassOverlay(requireContext(), new InternalCompassOrientationProvider(requireContext()), mapView);
         compassOverlay.enableCompass();
         mapView.getOverlays().add(compassOverlay);
+
+
 
         return view;
     }
@@ -465,9 +472,9 @@ public class RunFragment extends Fragment implements SensorEventListener {
 
                     double elapsedTimeSeconds = (System.currentTimeMillis() - startTrackingTime) / 1000.0;
                     // Update top speed
-                    // we ignore the first 2 seconds bc of noise with gps
+                    // we ignore the first 5 seconds bc of noise with gps
                     // otherwise we get a very high speed at the beginning
-                    if (currentSpeed > topSpeed && elapsedTimeSeconds > 2) {
+                    if (currentSpeed > topSpeed && elapsedTimeSeconds > 5) {
                         topSpeed = currentSpeed;
                     }
 
@@ -547,9 +554,12 @@ public class RunFragment extends Fragment implements SensorEventListener {
     }
 
     private void updateElevationUI(float elevationChange) {
-        TextView elevationValue = getView().findViewById(R.id.elevation_value);
-        String signedChange = (elevationChange > 0 ? "+" : "") + String.format("%.1f m", elevationChange);
-        elevationValue.setText(signedChange);
+        if (isPressureSensorAvailable) {
+            String signedChange = (elevationChange > 0 ? "+" : "") + String.format("%.1f m", elevationChange);
+            elevationValue.setText(signedChange);
+        } else {
+            elevationValue.setText("--");
+        }
     }
 
     public void onSensorChanged(SensorEvent event) {
@@ -561,7 +571,7 @@ public class RunFragment extends Fragment implements SensorEventListener {
             updateUI(System.currentTimeMillis() - startTime, totalDistance, stepCount, caloriesBurned, currentSpeed);
         }
 
-        if (isTracking && event.sensor.getType() == Sensor.TYPE_PRESSURE) {
+        if (isTracking && event.sensor.getType() == Sensor.TYPE_PRESSURE && isPressureSensorAvailable) {
             float pressure = event.values[0];
             float altitude = SensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, pressure);
 
