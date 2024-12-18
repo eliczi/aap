@@ -10,7 +10,7 @@
         android:id="@+id/chart_weight"
         android:layout_width="414dp"
         android:layout_height="401dp"
-        android:layout_marginBottom="164dp"
+        android:layout_marginBottom="328dp"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:layout_editor_absoluteX="-2dp" />
 

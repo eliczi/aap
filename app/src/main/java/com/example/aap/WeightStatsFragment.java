@@ -91,10 +91,20 @@ public class WeightStatsFragment extends Fragment {
         cartesian.padding(10d, 20d, 5d, 20d);
         cartesian.yScale().minimum(0d);
 
-        // Set background color
-        int bgColorInt = ContextCompat.getColor(getContext(), R.color.light_md_theme_background);
+        //  Set background color
+        int currentNightMode = getResources().getConfiguration().uiMode & 0x30;
+        if (currentNightMode == 0x20) {
+        int bgColorInt = ContextCompat.getColor(getContext(), R.color.dark_md_theme_background);
         String bgColorHex = String.format("#%06X", (0xFFFFFF & bgColorInt));
-        cartesian.background().fill(bgColorHex);
+        cartesian.background().fill(bgColorHex); }
+        else {
+            int bgColorInt = ContextCompat.getColor(getContext(), R.color.light_md_theme_background);
+            String bgColorHex = String.format("#%06X", (0xFFFFFF & bgColorInt));
+            cartesian.background().fill(bgColorHex);
+        }
+
+
+
 
         cartesian.tooltip()
                 .positionMode(TooltipPositionMode.POINT)
@@ -111,5 +121,6 @@ public class WeightStatsFragment extends Fragment {
         cartesian.legend().padding(0d, 0d, 10d, 0d);
 
         chartWeight.setChart(cartesian);
+
     }
 }
