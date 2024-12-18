@@ -1,5 +1,6 @@
 package com.example.aap;
-
+import android.content.Context;
+import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,7 +41,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
     @Override
     public void onBindViewHolder(@NonNull WorkoutViewHolder holder, int position) {
         Workout workout = workouts.get(position);
-        holder.dateTextView.setText("Date: " + workout.getDate());
+        holder.dateTextView.setText("" + workout.getDate());
         holder.distanceTextView.setText(String.format("Distance: %.2f km", workout.getDistance() / 1000));
         holder.timeTextView.setText(String.format("Time: %d min", workout.getTime() / 60000));
         holder.avgSpeedTextView.setText(String.format("Avg Speed: %.2f km/h", workout.getAverageSpeed()));
@@ -55,9 +56,15 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
             setSelectedItem(position);
         });
 
+        Context context = holder.itemView.getContext();
+        int currentNightMode = context.getResources().getConfiguration().uiMode & 0x30;
         // Highlight the selected item
         if (selectedItemPosition == position) {
-            holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.light_md_theme_surfaceContainerHighest));
+           if (currentNightMode == 0x20) {
+               holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.dark_md_theme_primaryContainer));
+           } else {
+                holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.light_md_theme_primaryContainer));
+           }
         } else {
             holder.itemView.setBackgroundColor(Color.TRANSPARENT);
         }

@@ -285,4 +285,19 @@
 
     <color name="green_frame">#00C853</color> <!-- A nice green -->
 
+
+    <color name="chart_distance_color">#2196F3</color>
+    <color name="chart_time_color">#4CAF50</color>
+    <color name="chart_calories_color">#FF9800</color>
+    <color name="chart_avg_speed_color">#9C27B0</color>
+    <color name="chart_steps_color">#795548</color>
+    <color name="chart_elevation_color">#607D8B</color>
+
+    <color name="dark_chart_distance_color">#90CAF9</color>
+    <color name="dark_chart_time_color">#A5D6A7</color>
+    <color name="dark_chart_calories_color">#FFCC80</color>
+    <color name="dark_chart_avg_speed_color">#CE93D8</color>
+    <color name="dark_chart_steps_color">#BCAAA4</color>
+    <color name="dark_chart_elevation_color">#90A4AE</color>
+
 </resources>

@@ -213,7 +213,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         dummyPath1.add(new GeoPoint(46.006, 8.955));
         dummyPath1.add(new GeoPoint(46.007, 8.956));
 
-        Workout workout1 = new Workout(2500, 3600000, 2.5, 3000, 200, dummyPath1, "2024-12-15", 50);
+        Workout workout1 = new Workout(2500, 3600000, 2.5, 3000, 200, dummyPath1, "2024-12-15 14:32", 50);
         insertWorkout(workout1, db);
 
         List<GeoPoint> dummyPath2 = new ArrayList<>();
@@ -221,7 +221,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         dummyPath2.add(new GeoPoint(46.009, 8.958));
         dummyPath2.add(new GeoPoint(46.010, 8.959));
 
-        Workout workout2 = new Workout(5000, 7200000, 5.0, 6000, 400, dummyPath2, "2024-12-17", 100);
+        Workout workout2 = new Workout(5000, 7200000, 5.0, 6000, 400, dummyPath2, "2024-12-19 10:00", 100);
         insertWorkout(workout2, db);
 
     }

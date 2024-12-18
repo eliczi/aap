@@ -391,7 +391,7 @@ public class RunFragment extends Fragment implements SensorEventListener {
 
         if (isTracking) { // Check if tracking was active
             // Get the current date
-            String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+            String currentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date());
 
             // Create a Workout object
             long elapsedTime = System.currentTimeMillis() - startTime;
