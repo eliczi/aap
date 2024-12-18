@@ -126,9 +126,17 @@ public class MacroStatsFragment extends Fragment {
         barChartMacros.yScale().minimum(0d); // Start Y-axis at 0
 
         // Set Chart Background Color for Macros
-        int barBgColorInt = ContextCompat.getColor(getContext(), R.color.light_md_theme_background);
-        String barBgColorHex = String.format("#%06X", (0xFFFFFF & barBgColorInt));
-        barChartMacros.background().fill(barBgColorHex);
+        //  Set background color
+        int currentNightMode = getResources().getConfiguration().uiMode & 0x30;
+        if (currentNightMode == 0x20) {
+            int bgColorInt = ContextCompat.getColor(getContext(), R.color.dark_md_theme_background);
+            String bgColorHex = String.format("#%06X", (0xFFFFFF & bgColorInt));
+            barChartMacros.background().fill(bgColorHex); }
+        else {
+            int bgColorInt = ContextCompat.getColor(getContext(), R.color.light_md_theme_background);
+            String bgColorHex = String.format("#%06X", (0xFFFFFF & bgColorInt));
+            barChartMacros.background().fill(bgColorHex);
+        }
 
         // Additional Chart Settings for Macros
         barChartMacros.interactivity().hoverMode(com.anychart.enums.HoverMode.BY_X);
