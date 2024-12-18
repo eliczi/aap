@@ -55,6 +55,9 @@ public class DataFragment extends Fragment {
                         case 2:
                             tab.setText("Macro Stats");
                             break;
+                        case 3:
+                            tab.setText("Calories");
+                            break;
                     }
                 }
         ).attach();
