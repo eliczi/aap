@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -21,13 +22,22 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
     private OnWorkoutClickListener listener;
     private int selectedItemPosition = 0; // -1 indicates no item is selected
 
+    private OnWorkoutDeleteClickListener deleteListener;
+
+
+
     public interface OnWorkoutClickListener {
         void onWorkoutClick(Workout workout);
     }
 
-    public WorkoutAdapter(List<Workout> workouts, OnWorkoutClickListener listener) {
+    public interface OnWorkoutDeleteClickListener {
+        void onWorkoutDeleteClick(Workout workout);
+    }
+
+    public WorkoutAdapter(List<Workout> workouts, OnWorkoutClickListener listener, OnWorkoutDeleteClickListener deleteListener) {
         this.workouts = workouts;
         this.listener = listener;
+        this.deleteListener = deleteListener;
     }
 
     @NonNull
@@ -54,6 +64,13 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
             }
             // Update the selected item position and notify the adapter
             setSelectedItem(position);
+        });
+
+        // Set click listener for the delete button
+        holder.deleteButton.setOnClickListener(v -> {
+            if (deleteListener != null) {
+                deleteListener.onWorkoutDeleteClick(workout);
+            }
         });
 
         Context context = holder.itemView.getContext();
@@ -101,6 +118,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
         public TextView timeTextView;
         public TextView avgSpeedTextView;
         public TextView elevationTextView;
+        public Button deleteButton;
 
         public WorkoutViewHolder(View itemView) {
             super(itemView);
@@ -109,6 +127,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
             timeTextView = itemView.findViewById(R.id.workout_time);
             avgSpeedTextView = itemView.findViewById(R.id.workout_avg_speed);
             elevationTextView = itemView.findViewById(R.id.workout_elevation);
+            deleteButton = itemView.findViewById(R.id.delete_workout_button);
         }
     }
 }

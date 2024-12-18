@@ -13,6 +13,19 @@ public class Workout {
     private List<GeoPoint> path;
     private String date;
     private float elevationChange; // Add elevation change
+    private long id;
+
+    public Workout(long id, double distance, long time, double averageSpeed, int steps, double calories, List<GeoPoint> path, String date, float elevationChange) {
+        this.distance = distance;
+        this.time = time;
+        this.averageSpeed = averageSpeed;
+        this.steps = steps;
+        this.calories = calories;
+        this.path = path;
+        this.date = date;
+        this.elevationChange = elevationChange;
+        this.id = id;
+    }
 
     public Workout(double distance, long time, double averageSpeed, int steps, double calories, List<GeoPoint> path, String date, float elevationChange) {
         this.distance = distance;
@@ -24,7 +37,6 @@ public class Workout {
         this.date = date;
         this.elevationChange = elevationChange;
     }
-
 
 
     public double getDistance() {
@@ -91,6 +103,10 @@ public class Workout {
         this.elevationChange = elevationChange;
     }
 
+    public long getId() {
+        return id;
+
+    }
 
     @Override
     public String toString() { // for debugging

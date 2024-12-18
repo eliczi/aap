@@ -188,7 +188,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public int deleteAllRecords() {
         SQLiteDatabase db = this.getWritableDatabase();
-        int rowsDeleted = db.delete(TABLE_NAME, null, null);
+        int rowsDeleted = 0;
+        rowsDeleted += db.delete(TABLE_NAME, null, null);        // Delete from UserInfo table
+        rowsDeleted += db.delete(MEALS_TABLE, null, null);       // Delete from Meals table
+        rowsDeleted += db.delete(WORKOUTS_TABLE, null, null);    // Delete from Workouts table
         db.close();
         return rowsDeleted;
     }
@@ -483,6 +486,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return meals;
     }
 
+    public boolean deleteWorkout(long workoutId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int result = db.delete(WORKOUTS_TABLE, WORKOUT_ID + " = ?", new String[]{String.valueOf(workoutId)});
+        db.close();
+        return result > 0;
+    }
 
     public List<Workout> getAllWorkouts() {
         List<Workout> workoutList = new ArrayList<>();
@@ -491,6 +500,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         if (cursor != null && cursor.moveToFirst()) {
             do {
+                long id = cursor.getLong(cursor.getColumnIndexOrThrow(WORKOUT_ID));
                 double distance = cursor.getDouble(cursor.getColumnIndexOrThrow(WORKOUT_DISTANCE));
                 long time = cursor.getLong(cursor.getColumnIndexOrThrow(WORKOUT_TIME));
                 double avgSpeed = cursor.getDouble(cursor.getColumnIndexOrThrow(WORKOUT_AVG_SPEED));
@@ -501,7 +511,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String date = cursor.getString(cursor.getColumnIndexOrThrow(WORKOUT_DATE));
                 float elevationChange = cursor.getFloat(cursor.getColumnIndexOrThrow(WORKOUT_ELEVATION_CHANGE));
 
-                Workout workout = new Workout(distance, time, avgSpeed, steps, calories, path, date, elevationChange);
+                Workout workout = new Workout(id, distance, time, avgSpeed, steps, calories, path, date, elevationChange);
                 workoutList.add(workout);
             } while (cursor.moveToNext());
             cursor.close();
