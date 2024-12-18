@@ -1,5 +1,5 @@
 package com.example.aap;
-
+import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,9 +55,15 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
             setSelectedItem(position);
         });
 
+        Context context = holder.itemView.getContext();
+        int currentNightMode = context.getResources().getConfiguration().uiMode & 0x30;
         // Highlight the selected item
         if (selectedItemPosition == position) {
-            holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.dark_md_theme_errorContainer_mediumContrast));
+           if (currentNightMode == 0x20) {
+               holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.dark_md_theme_primaryContainer));
+           } else {
+                holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.light_md_theme_primaryContainer));
+           }
         } else {
             holder.itemView.setBackgroundColor(Color.TRANSPARENT);
         }
