@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -15,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,6 +24,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -48,6 +51,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 /**
  * This fragment handles displaying the running workout stats (both map+list, and charts)
@@ -63,6 +67,8 @@ public class WorkoutStatsFragment extends Fragment {
     private LinearLayout chartLayout;
     private boolean showMap = true; // initially true to show map by default
     private ScrollView chartScrollView;
+    private FloatingActionButton toggleButton;
+
 
     private int[] getChartColors() {
         int[] colors = new int[6];
@@ -101,6 +107,7 @@ public class WorkoutStatsFragment extends Fragment {
 
         chartScrollView = root.findViewById(R.id.chart_scroll_view);
 
+
         mapView = root.findViewById(R.id.map_view);
         mapView.setDestroyMode(false);   //see this issue https://github.com/osmdroid/osmdroid/issues/1848
         Configuration.getInstance().load(getContext(), getContext().getSharedPreferences("osmdroid", Context.MODE_PRIVATE));
@@ -109,13 +116,13 @@ public class WorkoutStatsFragment extends Fragment {
 
         chartLayout = root.findViewById(R.id.chart_layout);
 
-        Button toggleButton = root.findViewById(R.id.toggleButton);
+        toggleButton = root.findViewById(R.id.toggleButton);
         toggleButton.setOnClickListener(v -> {
             showMap = !showMap;
             updateUI();
         });
 
-        updateToggleButtonText(toggleButton);
+        updateToggleButtonIcon(toggleButton);
 
         displayWorkoutData();
         // Post the selection to the message queue to ensure it runs after the layout is complete
@@ -139,13 +146,25 @@ public class WorkoutStatsFragment extends Fragment {
         updateUI();
     }
 
-    private void updateToggleButtonText(Button toggleButton) {
+//    private void updateToggleButtonText(Button toggleButton) {
+//        if (showMap) {
+//            toggleButton.setText("Show Charts");
+//        } else {
+//            toggleButton.setText("Show Map");
+//        }
+//    }
+
+
+
+    private void updateToggleButtonIcon(FloatingActionButton toggleButton) {
         if (showMap) {
-            toggleButton.setText("Show Charts");
+            toggleButton.setImageResource(R.drawable.ic_chart);
         } else {
-            toggleButton.setText("Show Map");
+            toggleButton.setImageResource(R.drawable.ic_map);
         }
     }
+
+
 
     private void selectFirstWorkout() {
         List<Workout> workouts = dbHelper.getAllWorkouts();
@@ -255,25 +274,24 @@ public class WorkoutStatsFragment extends Fragment {
 
     private void updateUI() {
         if (showMap) {
-            mapView.setVisibility(View.VISIBLE);
-            chartLayout.setVisibility(View.GONE);
-            chartScrollView.setVisibility(View.GONE);
             workoutsRecyclerView.setVisibility(View.VISIBLE);
-            // If a workout is selected, display its path
+            chartScrollView.setVisibility(View.GONE);
+            mapView.setVisibility(View.VISIBLE);
+            toggleButton.setVisibility(View.VISIBLE);
             if (workoutAdapter != null && workoutAdapter.getSelectedItem() != null) {
                 displayWorkoutPath(workoutAdapter.getSelectedItem());
             }
         } else {
-            mapView.setVisibility(View.GONE);
             workoutsRecyclerView.setVisibility(View.GONE);
-            chartLayout.setVisibility(View.VISIBLE);
             chartScrollView.setVisibility(View.VISIBLE);
+            mapView.setVisibility(View.GONE);
+            toggleButton.setVisibility(View.VISIBLE);
             createCharts();
         }
 
-        Button toggleButton = getView().findViewById(R.id.toggleButton);
+        //Button toggleButton = getView().findViewById(R.id.toggleButton);
         if (toggleButton != null) {
-            updateToggleButtonText(toggleButton);
+            updateToggleButtonIcon(toggleButton);
         }
     }
 
