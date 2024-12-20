@@ -4,6 +4,11 @@ import org.osmdroid.util.GeoPoint;
 
 import java.util.List;
 
+/*
+ * This class is for creating workout objects. They are used for storing workout data in the database.
+ * They are created in the RunFragment.
+ */
+
 public class Workout {
     private double distance;
     private long time;
@@ -12,9 +17,10 @@ public class Workout {
     private double calories;
     private List<GeoPoint> path;
     private String date;
-    private float elevationChange; // Add elevation change
+    private float elevationChange;
     private long id;
 
+    // the id is needed for deleting specific workouts in the data tab
     public Workout(long id, double distance, long time, double averageSpeed, int steps, double calories, List<GeoPoint> path, String date, float elevationChange) {
         this.distance = distance;
         this.time = time;
@@ -27,6 +33,8 @@ public class Workout {
         this.id = id;
     }
 
+    // but we create them without the id in the RunFragment
+    // the database can add an incremental id on its own
     public Workout(double distance, long time, double averageSpeed, int steps, double calories, List<GeoPoint> path, String date, float elevationChange) {
         this.distance = distance;
         this.time = time;

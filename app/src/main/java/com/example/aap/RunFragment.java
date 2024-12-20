@@ -93,7 +93,7 @@ public class RunFragment extends Fragment implements SensorEventListener {
     private Button addPinButton;
     private int pinCount = 0;
 
-    // not sure if needed
+
     private long startTrackingTime = 0L;
 
     private List<Marker> mapMarkers = new ArrayList<>();
@@ -136,7 +136,7 @@ public class RunFragment extends Fragment implements SensorEventListener {
         mapView.setMultiTouchControls(true);
         mapView.getController().setZoom(18.0);
 
-        // Initialize Polyline
+        // Initialize Polyline (for displaying paths on map)
         pathOverlay = new Polyline();
         pathOverlay.setTitle("Demo Path");
         pathOverlay.getOutlinePaint().setColor(getResources().getColor(R.color.dark_md_theme_errorContainer_mediumContrast));
@@ -252,6 +252,7 @@ public class RunFragment extends Fragment implements SensorEventListener {
     }
 
     // to estimate burned calories
+    // we have a different factor for 3 speed ranges
     private double getMETValue(double speedKmh) {
         if (speedKmh <= 8) return 9.8;  // Jogging
         else if (speedKmh <= 12) return 11.8;  // Moderate running
@@ -282,7 +283,9 @@ public class RunFragment extends Fragment implements SensorEventListener {
         isTracking = true;
         startTime = System.currentTimeMillis();
 
-        // saving this to exclude first values of top speed bc inaccurate
+        // saving this to exclude first values of top speed because inaccurate
+        // that is, gps position might change quickly before it's properly fixed
+        // resulting in seemingly high speed movement
         startTrackingTime = startTime;
 
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -558,7 +561,7 @@ public class RunFragment extends Fragment implements SensorEventListener {
             String signedChange = (elevationChange > 0 ? "+" : "") + String.format("%.1f m", elevationChange);
             elevationValue.setText(signedChange);
         } else {
-            elevationValue.setText("--");
+            elevationValue.setText("--"); // don't display a 0 if we can't get it from the sensor
         }
     }
 

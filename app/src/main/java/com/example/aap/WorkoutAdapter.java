@@ -16,6 +16,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+/*
+ * This class is a custom adapter for the RecyclerView in the WorkoutStatsFragment. It displays a list of workouts,
+ * and handles clicks.
+ */
 public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutViewHolder> {
 
     private List<Workout> workouts;

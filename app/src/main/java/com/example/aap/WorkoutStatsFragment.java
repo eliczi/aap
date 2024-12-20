@@ -49,6 +49,11 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 
+/**
+ * This fragment handles displaying the running workout stats (both map+list, and charts)
+ * in the data tab.
+ */
+
 public class WorkoutStatsFragment extends Fragment {
 
     private DatabaseHelper dbHelper;
@@ -119,7 +124,6 @@ public class WorkoutStatsFragment extends Fragment {
                 selectFirstWorkout();
             }
         });
-//        updateUI();
 
         return root;
     }
@@ -169,7 +173,7 @@ public class WorkoutStatsFragment extends Fragment {
                         // Dark mode
                         highlightColor = ContextCompat.getColor(getContext(), R.color.dark_md_theme_primaryContainer);
                     } else {
-                        // Light mode (or undefined)
+                        // Light mode
                         highlightColor = ContextCompat.getColor(getContext(), R.color.light_md_theme_primaryContainer);
                     }
 
