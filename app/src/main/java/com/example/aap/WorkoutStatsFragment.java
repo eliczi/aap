@@ -54,6 +54,7 @@ import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 /**
+ * Andrea Luca Perugini
  * This fragment handles displaying the running workout stats (both map+list, and charts)
  * in the data tab.
  */

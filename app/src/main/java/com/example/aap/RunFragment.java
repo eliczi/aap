@@ -45,6 +45,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+/*
+ * Andrea Luca Perugini
+ * This fragment handles the running workout. It also creates workout objects stores them in the database
+ * for generating the maps and charts in Data -> Workout Stats (maps and charts toggable there with
+ * floating button).
+ * Collects and displays, current location, continuously updated path since workout start, compass,
+ * metrics for distance, time, current speed, steps, calories burned, top speed, avg speed,
+ *  and elevation change; while running, you can pin milestones, and see when each pin was reached.
+ *
+ */
 
 public class RunFragment extends Fragment implements SensorEventListener {
 

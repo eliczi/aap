@@ -5,6 +5,7 @@ import org.osmdroid.util.GeoPoint;
 import java.util.List;
 
 /*
+ * Andrea Luca Perugini
  * This class is for creating workout objects. They are used for storing workout data in the database.
  * They are created in the RunFragment.
  */
