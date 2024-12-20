@@ -53,6 +53,9 @@ import java.util.Locale;
  * Collects and displays, current location, continuously updated path since workout start, compass,
  * metrics for distance, time, current speed, steps, calories burned, top speed, avg speed,
  *  and elevation change; while running, you can pin milestones, and see when each pin was reached.
+ * NOTE: in some cases, after the first launch after first install, the map might not show the
+ * current location right away after enabling the permission. If that were to happen, restarting the
+ * app is enough. Subsequent app launches will not have this problem.
  *
  */
 
