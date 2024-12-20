@@ -1,6 +1,5 @@
 package com.example.aap.ui.meals;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +9,6 @@ import com.example.aap.R;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.aap.R;
 import com.google.android.material.card.MaterialCardView;
 import com.squareup.picasso.Picasso; // For image loading
 
@@ -61,7 +59,9 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
             textViewMealName = itemView.findViewById(R.id.textViewMealName);
             textViewMealNutrition = itemView.findViewById(R.id.textViewMealNutrition);
         }
-
+        /**
+         * This code is based on ChatGPT prompt, regarding displaying images using url
+         */
         public void bind(Meal meal) {
             textViewMealName.setText(meal.getName());
 
@@ -69,8 +69,7 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
                     meal.getCalories(), meal.getProtein(), meal.getCarbs(), meal.getFats());
             textViewMealNutrition.setText(nutritionInfo);
 
-            // Load image using Picasso or any other image loading library
-            // For local resources, you can use imageViewMeal.setImageResource()
+
             if (meal.getImageUrl() != null && !meal.getImageUrl().isEmpty()) {
                 Picasso.get()
                         .load(meal.getImageUrl())
@@ -79,17 +78,14 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.MealViewHolder
             } else {
                 imageViewMeal.setImageResource(R.drawable.white);
             }
-            // Update the stroke to indicate eaten state
             if (meal.isEatenToday()) {
                 materialCardView.setStrokeColor(
                         itemView.getContext().getResources().getColor(R.color.green_frame)
                 );
-                materialCardView.setStrokeWidth(4); // thickness of the frame in dp
+                materialCardView.setStrokeWidth(4);
             } else {
                 materialCardView.setStrokeWidth(0);
             }
-
-            // Set a click listener to toggle the eaten state
             itemView.setOnClickListener(v -> {
                 meal.setEatenToday(!meal.isEatenToday());
                 notifyItemChanged(getAdapterPosition());

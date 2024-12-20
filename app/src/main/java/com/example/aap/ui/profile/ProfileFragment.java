@@ -37,15 +37,11 @@ public class ProfileFragment extends Fragment {
     // UI Elements
     private TextView textView;
     private TextView textCalories;
-    private Button buttonGainWeight, buttonLoseWeight, buttonStrength;
     private Button buttonCalorie, buttonChangePhysicalAttributes;
     private Button buttonSaveData;
     private LinearLayout inputLayout;
-    private EditText editHeight, editWeight, editAge, editCalories;
-    private Button calorieIntake;
+    private EditText editHeight, editWeight, editAge;
 
-    // Log tag for debugging
-    private static final String TAG = "SetupFragment";
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -59,25 +55,18 @@ public class ProfileFragment extends Fragment {
 
         initUIElements(root);
 
-        // Retrieve and display the saved calorie intake
-        int savedCalories = sharedPreferences.getInt(KEY_USER_CALORIE, -1);
-
-
         profileViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String s) {
                 textView.setText(s);
             }
         });
-
         buttonCalorie.setOnClickListener(v -> {
             showCalorieInputDialog();
         });
-
         buttonChangePhysicalAttributes.setOnClickListener(v -> {
             showPhysicalAttributesInput();
         });
-
         buttonSaveData.setOnClickListener(v -> saveUserData());
 
         return root;
@@ -99,7 +88,6 @@ public class ProfileFragment extends Fragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle("Set Calorie Intake");
 
-        // Set up the input
         final EditText input = new EditText(requireContext());
         input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
         builder.setView(input);
@@ -127,7 +115,6 @@ public class ProfileFragment extends Fragment {
                 dialog.cancel();
             }
         });
-
         builder.show();
     }
 
@@ -136,18 +123,9 @@ public class ProfileFragment extends Fragment {
         editor.putBoolean(KEY_SETUP_COMPLETED, true);
         editor.putInt(KEY_USER_CALORIE, calories);
         editor.apply();
-
         Toast.makeText(getActivity(), "Calories set to: " + calories, Toast.LENGTH_SHORT).show();
-
-        // Update the TextView or other UI elements to reflect the saved calories
         profileViewModel.setText("Calories: " + calories);
         textCalories.setText("Calories: " + calories);
-    }
-
-    private void setGoalButtonsVisibility(int visibility) {
-        // buttonGainWeight.setVisibility(visibility);
-        // buttonLoseWeight.setVisibility(visibility);
-        // buttonStrength.setVisibility(visibility);
     }
 
     private void showPhysicalAttributesInput() {
@@ -155,14 +133,6 @@ public class ProfileFragment extends Fragment {
         inputLayout.setVisibility(View.VISIBLE);
         buttonChangePhysicalAttributes.setVisibility(View.GONE);
         buttonCalorie.setVisibility(View.GONE);
-        // buttonChangeGoal.setVisibility(View.GONE);
-    }
-
-    private void setupGoalSelection() {
-        setGoalButtonsVisibility(View.VISIBLE);
-        // buttonGainWeight.setOnClickListener(view -> handleGoalSelection("Gain Weight"));
-        // buttonLoseWeight.setOnClickListener(view -> handleGoalSelection("Lose Weight"));
-        // buttonStrength.setOnClickListener(view -> handleGoalSelection("Strength"));
     }
 
     private void saveUserData() {
@@ -177,26 +147,17 @@ public class ProfileFragment extends Fragment {
                 float height = Float.parseFloat(heightStr);
                 float weight = Float.parseFloat(weightStr);
                 int age = Integer.parseInt(ageStr);
-
                 boolean inserted = dbHelper.insertUserData(goal, height, weight, age);
                 if (inserted) {
                     Toast.makeText(getActivity(), "Data saved", Toast.LENGTH_SHORT).show();
-
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putBoolean(KEY_SETUP_COMPLETED, true);
-
                     editor.apply();
-
                     inputLayout.setVisibility(View.GONE);
-
                     editHeight.setText("");
                     editWeight.setText("");
                     editAge.setText("");
-
-                    // buttonChangeGoal.setVisibility(View.VISIBLE);
                     buttonChangePhysicalAttributes.setVisibility(View.VISIBLE);
-
-                    // Optionally, you can update the text or other UI elements here
                     profileViewModel.setText("Profile Updated");
 
                 } else {
@@ -213,6 +174,5 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // Reset the navigation flag
     }
 }

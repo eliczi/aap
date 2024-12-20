@@ -10,6 +10,9 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import java.io.IOException;
 
+/**
+ * This code is based on ChatGPT prompt, regarding using OpenAI API
+ */
 public class RetrofitClient {
     private static final String BASE_URL = "https://api.openai.com/";
 
@@ -17,13 +20,12 @@ public class RetrofitClient {
 
     public static OpenAITextService getOpenAITextClient() {
         if (retrofit == null) {
-            // Same interceptor and OkHttpClient setup as in getClient(), or a different one if needed
             Interceptor authInterceptor = new Interceptor() {
                 @Override
                 public Response intercept(Chain chain) throws IOException {
                     Request original = chain.request();
                     Request.Builder requestBuilder = original.newBuilder()
-                            .header("Authorization", "Bearer " + "Constants.OPENAI_API_KEY")
+                            .header("Authorization", "Bearer " + "OpenAI key")
                             .header("Content-Type", "application/json");
                     Request request = requestBuilder.build();
                     return chain.proceed(request);

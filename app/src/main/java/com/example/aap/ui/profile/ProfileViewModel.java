@@ -20,7 +20,6 @@ public class ProfileViewModel extends ViewModel {
         hasNavigated = _hasNavigated;
     }
 
-    // Text LiveData methods
     public void setText(String text) {
         mText.setValue(text);
     }
@@ -29,7 +28,6 @@ public class ProfileViewModel extends ViewModel {
         return mText;
     }
 
-    // hasNavigated LiveData methods
     public void setHasNavigated(boolean value) {
         _hasNavigated.setValue(value);
     }

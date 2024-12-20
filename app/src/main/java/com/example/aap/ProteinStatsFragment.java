@@ -1,8 +1,6 @@
 package com.example.aap.ui.data;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +28,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
+/*
+ * Based on Data Visualization Tutorial
+ */
 public class ProteinStatsFragment extends Fragment {
     private AnyChartView chartProteins;
     private Button historyButton;
@@ -43,14 +43,10 @@ public class ProteinStatsFragment extends Fragment {
 
         View root = inflater.inflate(R.layout.fragment_protein_stats, container, false);
 
-        // Initialize AnyChartViews
         chartProteins = root.findViewById(R.id.chart_protein);
         historyButton = root.findViewById(R.id.buttonChange);
 
-        // Initialize DatabaseHelper
         dbHelper = new DatabaseHelper(getContext());
-
-        // Set initial chart
         history = false; // start with today's chart
         drawCaloriesChart();
 
@@ -68,15 +64,8 @@ public class ProteinStatsFragment extends Fragment {
         return root;
     }
 
-//    public void refreshData() {
-//        drawCaloriesChart();
-//    }
-
     private void drawCaloriesChart() {
-        // Load today's date in the specified format
         String todayDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-
-        // Fetch today's meals from the database
         List<Meal> todaysMeals = DatabaseHelper.getMealsByDate(todayDate, getContext());
 
         float totalCalories = 0f;

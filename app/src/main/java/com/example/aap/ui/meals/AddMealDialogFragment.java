@@ -14,7 +14,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.aap.R;
-
+/**
+ * This code is based on ChatGPT prompt
+ */
 public class AddMealDialogFragment extends DialogFragment {
 
     public interface OnMealAddedListener {
@@ -34,7 +36,6 @@ public class AddMealDialogFragment extends DialogFragment {
         View view = inflater.inflate(R.layout.dialog_add_meal, null);
 
         EditText editMealName = view.findViewById(R.id.editMealName);
-        //EditText editMealImage = view.findViewById(R.id.editMealImage);
         EditText editCalories = view.findViewById(R.id.editCalories);
         EditText editProtein = view.findViewById(R.id.editProtein);
         EditText editCarbs = view.findViewById(R.id.editCarbs);
@@ -43,7 +44,6 @@ public class AddMealDialogFragment extends DialogFragment {
         Button buttonAddMeal = view.findViewById(R.id.buttonAddMeal);
         buttonAddMeal.setOnClickListener(v -> {
             String name = editMealName.getText().toString().trim();
-            //String imageUrl = editMealImage.getText().toString().trim();
             int calories = Integer.parseInt(editCalories.getText().toString().trim());
             int protein = Integer.parseInt(editProtein.getText().toString().trim());
             int carbs = Integer.parseInt(editCarbs.getText().toString().trim());

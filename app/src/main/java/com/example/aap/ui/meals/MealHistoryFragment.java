@@ -3,7 +3,6 @@ package com.example.aap.ui.meals;
 
 import android.os.Bundle;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -28,10 +27,8 @@ public class MealHistoryFragment extends Fragment implements DateAdapter.OnDateC
         binding = FragmentMealHistoryBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        // Initialize DatabaseHelper
         databaseHelper = new DatabaseHelper(requireContext());
 
-        // Setup RecyclerView
         dateAdapter = new DateAdapter(null, this);
         binding.recyclerViewDates.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerViewDates.setAdapter(dateAdapter);
@@ -41,9 +38,6 @@ public class MealHistoryFragment extends Fragment implements DateAdapter.OnDateC
         return root;
     }
 
-    /**
-     * Loads distinct meal dates from the database and updates the RecyclerView.
-     */
     private void loadMealDates() {
         List<String> dates = databaseHelper.getDistinctMealDates();
         if (dates.isEmpty()) {
@@ -52,11 +46,6 @@ public class MealHistoryFragment extends Fragment implements DateAdapter.OnDateC
         dateAdapter.setDateList(dates);
     }
 
-    /**
-     * Handles the click event on a date item.
-     *
-     * @param date The selected date.
-     */
     @Override
     public void onDateClick(String date) {
 

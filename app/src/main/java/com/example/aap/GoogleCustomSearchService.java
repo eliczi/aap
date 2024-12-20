@@ -4,6 +4,9 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
+/**
+ * This code is based on ChatGPT prompt, regarding using Google API
+ */
 public interface GoogleCustomSearchService {
     @GET("customsearch/v1")
     Call<SearchResponse> searchImages(

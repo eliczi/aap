@@ -2,7 +2,7 @@ package com.example.aap.ui.meals;
 
 public class Meal {
     private String name;
-    private String imageUrl; // URL or resource ID for the meal image
+    private String imageUrl;
     private int calories;
     private int protein;
     private int carbs;

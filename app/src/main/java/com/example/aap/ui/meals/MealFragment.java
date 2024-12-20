@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.aap.R;
 import com.example.aap.RetrofitClient;
 import com.example.aap.SearchResponse;
+import com.example.aap.Workout;
 import com.example.aap.databinding.FragmentMealsBinding;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +31,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import com.example.aap.DatabaseHelper;
-import android.view.View;
 import android.widget.TextView;
-import com.example.aap.DatabaseHelper;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -42,7 +41,6 @@ public class MealFragment extends Fragment {
 
     private FragmentMealsBinding binding;
     private static final String SHARED_PREFS_NAME = "UserPrefs";
-    private static final String KEY_USER_GOAL = "UserGoal";
     private static final String KEY_USER_CALORIE = "Calorie";
     private SharedPreferences sharedPreferences;
 
@@ -66,7 +64,6 @@ public class MealFragment extends Fragment {
         View root = binding.getRoot();
         databaseHelper = new DatabaseHelper(requireContext());
         textViewNoMealPlan = binding.textViewNoMealPlan;
-        // sharedPreferences
         sharedPreferences = requireActivity().getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);
 
 
@@ -80,13 +77,19 @@ public class MealFragment extends Fragment {
         mealAdapter = new MealAdapter(mealList);
         binding.recyclerViewMeals.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerViewMeals.setAdapter(mealAdapter);
-        //initial visibility is gone
         binding.buttonSaveMeals.setVisibility(View.GONE);
 
         binding.buttonGenerateMeal.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Started generating meal plan.", Toast.LENGTH_SHORT).show();
-            //generateMealPlan(userGoal);
             int cal = sharedPreferences.getInt(KEY_USER_CALORIE, 2000);
+            List<Workout> todayWorkouts = databaseHelper.getWorkoutsToday(getContext());
+            int totalCaloriesBurned = 0;
+
+
+            for (Workout workout : todayWorkouts) {
+                totalCaloriesBurned += workout.getCalories(); // Ensure getCalories() returns an int
+            }
+            cal += totalCaloriesBurned;
             fetchMealIdeas(cal);
             binding.buttonSaveMeals.setEnabled(true);
 
@@ -121,13 +124,9 @@ public class MealFragment extends Fragment {
             NavHostFragment.findNavController(MealFragment.this)
                     .navigate(R.id.action_mealFragment_to_mealHistoryFragment);
         });
-
         loadTodaysMealPlan();
         return root;
     }
-
-
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -136,10 +135,8 @@ public class MealFragment extends Fragment {
 
     private void loadTodaysMealPlan() {
 
-        // Get today's date in "yyyy-MM-dd" format
         String todayDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
-        // Fetch meals for today from the database
         List<Meal> todaysMeals = databaseHelper.getMealsByDate(todayDate, getContext());
 
         if (todaysMeals.isEmpty()) {
@@ -153,22 +150,22 @@ public class MealFragment extends Fragment {
             mealAdapter.setMealList(mealList);
             binding.recyclerViewMeals.setVisibility(View.VISIBLE);
             textViewNoMealPlan.setVisibility(View.GONE);
-            // Optionally disable save button as it's already saved
             binding.buttonSaveMeals.setEnabled(false);
         }
 
     }
-
+    /*
+     * Based on ChatGPT prompt regarding using OpenAI API
+     */
     private void fetchMealIdeas(int calories) {
         openAITextService = RetrofitClient.getOpenAITextClient();
 
         String prompt = "Generate 4 meal suggestions for someone whose daily calorie intake is "
-                + "" + calories
+                + "" + calories + "and is focused on running training"
                 + ". Provide each meal in a JSON array format with keys: name, calories, protein, carbs, and fat."
                 + "Where values for all the keys except name are ints. The meals should be breakfast, lunch, dinner and supper"
                 + "The name should be a meal name, not breakfast or dinner.";
 
-        // Create the request body as a Map
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("model", "gpt-4");
 
@@ -186,13 +183,11 @@ public class MealFragment extends Fragment {
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Map<String, Object> responseMap = response.body();
-                    // Extract the "choices" array from the response
                     List<Map<String, Object>> choices = (List<Map<String, Object>>) responseMap.get("choices");
                     if (choices != null && !choices.isEmpty()) {
                         Map<String, Object> firstChoice = choices.get(0);
                         Map<String, Object> messageMap = (Map<String, Object>) firstChoice.get("message");
                         String responseText = (String) messageMap.get("content");
-                        // Parse the JSON text returned by GPT into Meal objects
                         List<Meal> generatedMeals = parseMealsFromJson(responseText);
                         mealList.clear();
                         mealList.addAll(generatedMeals);
@@ -200,9 +195,8 @@ public class MealFragment extends Fragment {
                         binding.recyclerViewMeals.setVisibility(View.VISIBLE);
                         textViewNoMealPlan.setVisibility(View.GONE);
 
-                        // Now fetch images for the generated meals
                         binding.buttonSaveMeals.setVisibility(View.VISIBLE);
-                        //fetchMealImages(generatedMeals);
+                        fetchMealImages(generatedMeals);
                     } else {
                         Toast.makeText(getContext(), "No meal suggestions returned.", Toast.LENGTH_SHORT).show();
                     }
@@ -213,6 +207,7 @@ public class MealFragment extends Fragment {
 
             @Override
             public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                Log.d("openai", t.getLocalizedMessage());
                 Toast.makeText(getContext(), "Error: " + t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -223,8 +218,9 @@ public class MealFragment extends Fragment {
         Meal[] meals = gson.fromJson(jsonText, Meal[].class);
         return new ArrayList<>(Arrays.asList(meals));
     }
-
-
+    /*
+     * Based on ChatGPT prompt regarding using Google API
+     */
     private void fetchMealImages(List<Meal> meals) {
         if (meals == null || meals.isEmpty()) return;
         for (Meal meal : meals) {
@@ -233,7 +229,7 @@ public class MealFragment extends Fragment {
                     CX,
                     meal.getName(),
                     "image",
-                    1 // Only need one image result per meal for now
+                    1
             );
 
             call.enqueue(new retrofit2.Callback<SearchResponse>() {
@@ -249,7 +245,6 @@ public class MealFragment extends Fragment {
                         Log.e("MealFragment", "Image search response not successful: " + response.code());
                     }
 
-                    // Update the UI after each meal is processed
                     requireActivity().runOnUiThread(() -> mealAdapter.notifyDataSetChanged());
                 }
 

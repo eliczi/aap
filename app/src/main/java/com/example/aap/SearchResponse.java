@@ -2,6 +2,9 @@ package com.example.aap;
 
 import java.util.List;
 
+/**
+ * This code is based on ChatGPT prompt, regarding using Google API
+ */
 public class SearchResponse {
     List<Item> items;
 

@@ -3,7 +3,6 @@ package com.example.aap.ui.meals;
 
 import android.os.Bundle;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.aap.DatabaseHelper;
@@ -35,7 +34,6 @@ public class MealPlanFragment extends Fragment {
     }
 
     public MealPlanFragment() {
-        // Required empty public constructor
     }
 
     @Override
@@ -52,10 +50,7 @@ public class MealPlanFragment extends Fragment {
         binding = FragmentMealPlanBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        // Initialize DatabaseHelper
         databaseHelper = new DatabaseHelper(requireContext());
-
-        // Setup RecyclerView
         mealAdapter = new MealAdapter(null);
         binding.recyclerViewMealPlan.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerViewMealPlan.setAdapter(mealAdapter);
@@ -72,10 +67,8 @@ public class MealPlanFragment extends Fragment {
             return;
         }
 
-        // Set the date in the TextView
         binding.textViewMealDate.setText("Meal Plan for " + date);
 
-        // Fetch meals for the date
         mealList = databaseHelper.getMealsByDate(date, getContext());
         if (mealList.isEmpty()) {
             Toast.makeText(getContext(), "No meals found for " + date, Toast.LENGTH_SHORT).show();

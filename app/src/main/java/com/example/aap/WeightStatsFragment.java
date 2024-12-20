@@ -24,10 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/*
+ * Based on Data Visualization Tutorial
+ */
 public class WeightStatsFragment extends Fragment {
 
     private AnyChartView chartWeight;
-    private DatabaseHelper dbHelper;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -36,16 +38,11 @@ public class WeightStatsFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_weight_stats, container, false);
 
         chartWeight = root.findViewById(R.id.chart_weight);
-        dbHelper = new DatabaseHelper(getContext());
-
         drawWeightChart();
 
         return root;
     }
 
-    public void refreshData() {
-        drawWeightChart();
-    }
 
     private void drawWeightChart() {
         Map<String, Float> weightDataMap = DatabaseHelper.loadWeightOverTime(getContext());
@@ -53,7 +50,6 @@ public class WeightStatsFragment extends Fragment {
         List<DataEntry> dataEntries = new ArrayList<>();
         for (Map.Entry<String, Float> entry : weightDataMap.entrySet()) {
             String originalDate = entry.getKey();
-            // Format date: YYYY-MM-DD -> DD/MM
             String formattedDate = originalDate.substring(8, 10) + "/" + originalDate.substring(5, 7);
             dataEntries.add(new ValueDataEntry(formattedDate, entry.getValue()));
         }
@@ -102,10 +98,6 @@ public class WeightStatsFragment extends Fragment {
             String bgColorHex = String.format("#%06X", (0xFFFFFF & bgColorInt));
             cartesian.background().fill(bgColorHex);
         }
-
-
-
-
         cartesian.tooltip()
                 .positionMode(TooltipPositionMode.POINT)
                 .position("right-top")

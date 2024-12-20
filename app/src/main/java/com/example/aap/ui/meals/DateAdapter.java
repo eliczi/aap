@@ -60,10 +60,5 @@ public class DateAdapter extends RecyclerView.Adapter<DateAdapter.DateViewHolder
             textViewDate = itemView.findViewById(R.id.textViewDate);
         }
 
-        // Optional: Format the date for better readability
-        private String formatDate(String date) {
-            // Implement date formatting if needed
-            return date;
-        }
     }
 }

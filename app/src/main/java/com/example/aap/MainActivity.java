@@ -1,7 +1,6 @@
 package com.example.aap;
 
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;

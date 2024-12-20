@@ -44,7 +44,6 @@ public class ChartPageAdapter extends RecyclerView.Adapter<ChartPageAdapter.Char
     @Override
     public void onBindViewHolder(@NonNull ChartViewHolder holder, int position) {
         AnyChartView anyChartView = holder.anyChartView;
-        // For now, leave the charts blank. You can set up charts here later.
         int bgColorInt = ContextCompat.getColor(context, R.color.light_md_theme_background);
         String bgColorHex = String.format("#%06X", (0xFFFFFF & bgColorInt));
         switch (position) {
@@ -54,36 +53,29 @@ public class ChartPageAdapter extends RecyclerView.Adapter<ChartPageAdapter.Char
                 break;
 
             case 1:
-                // **Bar Chart Example**
                 com.anychart.charts.Cartesian barChart = AnyChart.bar();
                 barChart.animation(true);
-                // Data for actual values
                 List<DataEntry> actualData = new ArrayList<>();
                 actualData.add(new ValueDataEntry("Calories", 1800)); // Actual: 1800
                 actualData.add(new ValueDataEntry("Proteins", 120));  // Actual: 120g
                 actualData.add(new ValueDataEntry("Fats", 60));       // Actual: 60g
                 actualData.add(new ValueDataEntry("Carbs", 250));     // Actual: 250g
 
-                // Data for target goals
                 List<DataEntry> targetData = new ArrayList<>();
                 targetData.add(new ValueDataEntry("Calories", 2000)); // Goal: 2000
                 targetData.add(new ValueDataEntry("Proteins", 150));  // Goal: 150g
                 targetData.add(new ValueDataEntry("Fats", 70));       // Goal: 70g
                 targetData.add(new ValueDataEntry("Carbs", 300));     // Goal: 300g
 
-                // Adding series for actual values
                 com.anychart.core.cartesian.series.Bar actualSeries = barChart.bar(actualData);
                 actualSeries.name("Actual");
 
-                // Adding series for target values
                 com.anychart.core.cartesian.series.Bar targetSeries = barChart.bar(targetData);
                 targetSeries.name("Target");
-                targetSeries.color("#FFA500"); // Optional: Orange for target bars
+                targetSeries.color("#FFA500");
 
-                // Chart configuration
                 barChart.title("Nutritional Intake vs Targets");
 
-                // Enable tooltips for interactivity
                 barChart.tooltip()
                         .titleFormat("{%X}")
                         .position("right")
@@ -92,22 +84,18 @@ public class ChartPageAdapter extends RecyclerView.Adapter<ChartPageAdapter.Char
                         .offsetY(5d)
                         .format("Value: {%Value}");
 
-                // Configure X-axis and Y-axis
                 barChart.xAxis(0).title("Nutrients");
                 barChart.yAxis(0).title("Quantity");
                 barChart.xAxis(0).labels().rotation(-45);
 
-                // Set chart background color
                 int barBgColorInt = ContextCompat.getColor(context, R.color.light_md_theme_background);
                 String barBgColorHex = String.format("#%06X", (0xFFFFFF & barBgColorInt));
                 barChart.background().fill(barBgColorHex);
 
-                // Set the chart to the AnyChartView
                 anyChartView.setChart(barChart);
                 break;
 
             default:
-                // **Default Chart (Pie Chart)**
                 anyChartView.setChart(AnyChart.pie());
                 break;
         }
@@ -139,9 +127,7 @@ public class ChartPageAdapter extends RecyclerView.Adapter<ChartPageAdapter.Char
 
         }
 
-
         Cartesian cartesian = AnyChart.line();
-
         cartesian.title("Weight Over Time");
 
         com.anychart.data.Set set = com.anychart.data.Set.instantiate();
@@ -161,16 +147,13 @@ public class ChartPageAdapter extends RecyclerView.Adapter<ChartPageAdapter.Char
                 .offsetX(5d)
                 .offsetY(5d);
 
-        // Configure the chart
         cartesian.animation(true);
         cartesian.padding(10d, 20d, 5d, 20d);
         cartesian.yScale().minimum(0d);
 
-        //Cbackground color
 
         cartesian.background().fill(color);
 
-        //cartesian.xAxis(0).title("Date");
 
         cartesian.tooltip()
                 .positionMode(TooltipPositionMode.POINT)
